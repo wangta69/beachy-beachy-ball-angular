@@ -6,3 +6,5 @@
 - angular v19
 - three v0.172.0
 
+https://github.com/dimforge/rapier.js/tree/master/src.ts
+

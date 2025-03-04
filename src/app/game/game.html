@@ -1,177 +1,274 @@
 
-<div class="ui">
-
-  
-
-  <div class="game" (click)="onclick_game()"></div>
-  
-  <div class="background"></div>
-
-  <div class="texts">
-    <h1 class="text title">
-      <span>THE</span>
-      <span>CUBE</span>
-    </h1>
-    <div class="text note">
-      Double tap to start
-    </div>
-    <div class="text timer">
-      0:00
-    </div>
-    <div class="text complete">
-      <span>Complete!</span>
-    </div>
-    <div class="text best-time">
-      <mat-icon svgIcon="trophy"></mat-icon>
-      <span>Best Time!</span>
-    </div>
+<div id="game"></div>
+<div class="main-menu" style="display: none;">
+  <!-- <img class="logo-ball" src={LogoBall} /> -->
+  <mat-icon class="logo-ball" svgIcon="logo_ball_stroke"></mat-icon>
+  <!-- <img class="wordmark" src={Wordmark} /> -->
+  <mat-icon class="wordmark" svgIcon="wordmark"></mat-icon>
+  <div class="main-menu-button" (click)="setIsInGame(true)">
+    Play
   </div>
 
+  <ng-template *ngIf="isSettings; else isnotSettings">
+    <div class="main-menu-button" (click)="setIsSettings(true)">
+      Settings
+    </div>
+  </ng-template>
+  <ng-template #isnotSettings>
+    <div class="main-menu-section-title">Mode</div>
+    <div class="main-menu-selection-area">
+      <div
+        class="main-menu-selection"
+        [class.main-menu-selected]="mode==='random'"
+        (click)="setMode('random')"
+      >
+        Random
+      </div>
+      <div
+        class="main-menu-selection"
+        [class.main-menu-selected]="mode==='tour'"
+        (click)="setMode('tour')"
+      >
+        Tour
+      </div>
+      <div
+        class="main-menu-selection"
+        [class.main-menu-selected]="mode==='adventure'"
+        (click)="setMode('adventure')"
+      >
+        Adventure
+      </div>
+    </div>
 
+    <ng-template *ngIf="mode === 'random'">
+        <div class="main-menu-section-title">Difficulty</div>
+        <div class="main-menu-selection-area">
+          <div
+            class="main-menu-selection"
+            [class.main-menu-selected]="difficulty===1"
 
-  <div class="prefs">
-    <div class="range" name="size">
-      <div class="label">Cube Size</div>
-      <div class="track">
-        <div class="track-line"></div>
-        <div class="handle">
-          <div></div>
+            (click)="
+              setDifficulty(1);
+              setLocalStorage('difficulty', 1);
+            "
+          >
+            Easy
+          </div>
+          <div
+            class="main-menu-selection"
+          [class.main-menu-selected]="difficulty===3"
+          (click)="
+              setDifficulty(3);
+              setLocalStorage('difficulty', 3);
+            "
+          >
+            Medium
+          </div>
+          <div
+            class="main-menu-selection"
+          [class.main-menu-selected]="difficulty===5"
+          (click)="
+              setDifficulty(5);
+              setLocalStorage('difficulty', 5);
+            "
+          >
+            Hard
+          </div>
+          <div
+            class="main-menu-selection"
+          [class.main-menu-selected]="difficulty===10"
+          (click)="
+              setDifficulty(10);
+              setLocalStorage('difficulty', 10);
+            "
+          >
+            Evil
+          </div>
+        </div>
+
+        <div class="main-menu-section-title">Number of Blocks</div>
+        <div class="main-menu-selection-area">
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="blocksCount===5"
+
+            (click)="
+              setBlocksCount(5);
+              setLocalStorage('blocksCount', 5);
+            "
+          >
+            5
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="blocksCount===10"
+            (click)="
+              setBlocksCount(10);
+              setLocalStorage('blocksCount', 10);
+            "
+          >
+            10
+          </div>
+
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="blocksCount===15"
+            (click)="
+              setBlocksCount(15);
+              setLocalStorage('blocksCount', 15);
+            "
+          >
+            15
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="blocksCount===20"
+            (click)="
+              setBlocksCount(20);
+              setLocalStorage('blocksCount', 20);
+            "
+          >
+            20
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="blocksCount===30"
+            (click)="
+              setBlocksCount(30);
+              setLocalStorage('blocksCount', 30);
+            "
+          >
+            30
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="blocksCount===40"
+            (click)="
+              setBlocksCount(40);
+              setLocalStorage('blocksCount', 40);
+            "
+          >
+            40
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="blocksCount===50"
+            (click)="
+              setBlocksCount(50);
+              setLocalStorage('blocksCount', 50);
+            "
+          >
+            50
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="blocksCount===100"
+            (click)="
+              setBlocksCount(100);
+              setLocalStorage('blocksCount', 100);
+            "
+          >
+            100
+          </div>
+        </div>
+    </ng-template>
+
+    <ng-template *ngIf="mode === 'tour'">
+      <div class="main-menu-section-title">Difficulty</div>
+      <div class="main-menu-selection-area">
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="difficulty===1"
+
+          (click)="
+            setDifficulty(1);
+            setLocalStorage('difficulty', 1);
+          "
+        >
+          Easy
+        </div>
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="difficulty===3"
+          (click)="
+            setDifficulty(3);
+            setLocalStorage('difficulty', 3);
+          "
+        >
+          Medium
+        </div>
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="difficulty===5"
+          (click)="
+            setDifficulty(5);
+            setLocalStorage('difficulty', 5);
+          "
+        >
+          Hard
+        </div>
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="difficulty===10"
+          (click)="
+            setDifficulty(10);
+            setLocalStorage('difficulty', 10);
+          "
+        >
+          Evil
         </div>
       </div>
-      <div class="list">
-        <div>2</div>
-        <div>3</div>
-        <div>4</div>
-        <div>5</div>
-      </div>
-    </div>
-    <div class="range" name="flip">
-      <div class="label">Flip Type</div>
-      <div class="track">
-        <div class="track-line"></div>
-        <div class="handle"><div></div></div>
-      </div>
-      <div class="list">
-        <div>Swift</div>
-        <div>Smooth</div>
-        <div>Bounce</div>
-      </div>
-    </div>
 
-    <div class="range" name="scramble">
-      <div class="label">Scramble Length</div>
-      <div class="track">
-        <div class="track-line"></div>
-        <div class="handle"><div ></div></div>
-      </div>
-      <div class="list">
-        <div>20</div>
-        <div>25</div>
-        <div>30</div>
-      </div>
-    </div>
+      <div class="main-menu-section-title">Beach</div>
+      <div class="main-menu-selection-area">
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="level==='copacabana'"
 
-    <div class="range" name="fov">
-      <div class="label">Camera Angle</div>
-      <div class="track">
-        <div class="track-line"></div>
-        <div class="handle"><div></div></div>
+          (click)="
+            setLevel('copacabana');
+            setLocalStorage('level', 'copacabana');
+          "
+        >
+          Copacabana
+        </div>
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="level==='santamonica'"
+          (click)="
+            setLevel('santamonica');
+            setLocalStorage('level', 'santamonica');
+          "
+        >
+          Santa Monica
+        </div>
       </div>
-      <div class="list">
-        <div>Ortographic</div>
-        <div>Perspective</div>
-      </div>
-    </div>
+      <div class="coming-soon">More beaches coming soon!</div>
+    </ng-template>
 
-    <div class="range" name="theme">
-      <div class="label">Color Scheme</div>
-      <div class="track">
-        <div class="track-line"></div>
-        <div class="handle"><div></div></div>
-      </div>
-      <div class="list">
-        <div>Cube</div>
-        <div>Erno</div>
-        <div>Dust</div>
-        <div>Camo</div>
-        <div>Rain</div>
-      </div>
+    <ng-template *ngIf="mode === 'adventure'">
+      <div class="coming-soon">Coming soon!</div>
+    </ng-template>
+  </ng-template>
+
+  <div class="main-menu-about-section">
+    <div class="main-menu-about">
+      <a href="https://github.com/michaelkolesidis/beachy-beachy-ball">
+        © 2023 Michael Kolesidis.
+      </a>
+    </div>
+    <div class="main-menu-about">
+      <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
+        Licensed under the GNU AGPL 3.0
+      </a>
     </div>
   </div>
-
-  <div class="theme">
-    <div class="range type-color color-hue" name="hue">
-      <div class="label">Hue</div>
-      <div class="track">
-        <div class="track-line"></div>
-        <div class="handle"><div></div></div>
-      </div>
-    </div>
-
-    <div class="range type-color color-saturation" name="saturation">
-      <div class="label">Saturation</div>
-      <div class="track">
-        <div class="track-line"></div>
-        <div class="handle"><div></div></div>
-      </div>
-    </div>
-
-    <div class="range type-color color-lightness" name="lightness">
-      <div class="label">Lightness</div>
-      <div class="track">
-        <div class="track-line"></div>
-        <div class="handle"><div></div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="stats">
-    <div name="cube-size">
-      <i>Cube:</i><b>3x3x3</b>
-    </div>
-    <div name="total-solves">
-      <i>Total solves:</i><b>-</b>
-    </div>
-    <div name="best-time">
-      <i>Best time:</i><b>-</b>
-    </div>
-    <div name="worst-time">
-      <i>Worst time:</i><b>-</b>
-    </div>
-    <div name="average-5">
-      <i>Average of 5:</i><b>-</b>
-    </div>
-    <div name="average-12">
-      <i>Average of 12:</i><b>-</b>
-    </div>
-    <div name="average-25">
-      <i>Average of 25:</i><b>-</b>
-    </div>
-  </div>
-
-  <div class="buttons">
-    <div class="left-btns">
-      <button class="btn-stats" (click)="onclick_stats()">
-        <mat-icon svgIcon="trophy"></mat-icon>
-      </button>
-      <button class="btn-back" (click)="onclick_back()">
-        <mat-icon svgIcon="back"></mat-icon>
-      </button>
-    </div>
-    <div class="right-btns">
-      <button class="btn-prefs" (click)="onclick_prefs()">
-        <mat-icon svgIcon="settings"></mat-icon>
-      </button>
-      
-      <button class="btn-theme" (click)="onclick_theme()">
-        <mat-icon svgIcon="theme"></mat-icon>
-      </button>
-      <button class="btn-reset" (click)="onclick_reset()">
-        <mat-icon svgIcon="reset"></mat-icon>
-      </button>
-    </div>
-  </div>
-
+  <a href="https://michaelkolesidis.com" target="_blank">
+    <!-- <img
+      class="author-logo"
+      src={MichaelLogo}
+      alt="Author's logo"
+    > -->
+    <mat-icon class="author-logo" svgIcon="mm_white" alt="Author's logo"></mat-icon>
+  </a>
 </div>
-
-
