@@ -16,11 +16,11 @@ function SoundManager() {
   const audio = useAudio((state) => state.audio);
   const gamePhase = useGame((state) => state.phase);
 
-  const successSound = useMemo(() => {
+  const successSound = () => {
     const sound = new Audio("./sounds/success.mp3");
     sound.volume = 0.2;
     return sound;
-  }, []);
+  };
 
   useEffect(() => {
     if (gamePhase === "ready") {

@@ -4,6 +4,8 @@ import { MatIconModule } from '@angular/material/icon';
 
 import * as THREE from 'three';
 import {World} from './World';
+import {Rapier} from './rapier/Rapier';
+import {RigidBody} from './rapier/RigidBody';
 import {Ball} from './Ball';
 // import {BlockEmpty} from './level/components/Blocks';
 import {Levels} from './level/Level';
@@ -20,8 +22,9 @@ export class GameComponent implements OnInit, AfterViewInit{
 
   private world!:World;
   private ball!:Ball;
-
-
+  private rigidBody!: RigidBody;
+  // private rapier!: Rapier; // = new Rapier(0.0, -9.81, 0.0);
+  private rapier = new Rapier();
   private isInGame = false;
   public isSettings = false;
   private performance = false;
@@ -73,7 +76,6 @@ export class GameComponent implements OnInit, AfterViewInit{
 
   // controller part start
   private handleKeyDown(e: any) {
-    console.log('handleKeyDown:e:',  e);
 
     switch(e.code) {
       case 'KeyR':
@@ -161,24 +163,26 @@ export class GameComponent implements OnInit, AfterViewInit{
 
   // controller part end
 
-  private create() {
-    
+  private async create() {
+    await this.rapier.initRapier(0.0, -9.81, 0.0);
     this.world = new World( this );
-    setTimeout(() => {
+    this.rigidBody = new RigidBody(this.rapier);
+    setTimeout(async () => {
       this.ball = new Ball(this);
-      this.levels = new Levels(this);
-      const blocks = this.levels.RandomLevel();
 
-      console.log ('blocks:', blocks);
+      this.levels = new Levels(this);
+       
+      const blocks = await this.levels.RandomLevel();
+
       blocks.forEach((block: any) => {
-        // console.log(block);
         // if( block instanceof Mesh) {
-          if( block ) {
-            console.log(block);
+        if( block ) {
           this.world.scene.add(block);
         }
       });
+
       this.ball.reset();
+     
     }, 1000);
     
   }

@@ -66,8 +66,8 @@ export class Levels {
     */
   }
   
-  public RandomLevel(
-    count = 5,
+  public async RandomLevel(
+    count = 0,
     // types = [
     //   this.blocks.BlockSpinner,
     //   this.blocks.BlockDoubleSpinner,
@@ -80,14 +80,20 @@ export class Levels {
     // ],
     types = [
       'BlockSpinner',
+    ],
+/*
+    types = [
+      'BlockSpinner',
       'BlockDoubleSpinner',
       'BlockSlidingWall',
       'BlockDoubleSlidingWall',
       'BlockLimbo',
       'BlockDoubleLimbo',
+      
       // this.blocks.BlockPlatformLimbo,
       // this.blocks.BlockRamp
     ],
+    */
     seed = 0,
     difficulty = 1,
   ) {
@@ -102,22 +108,23 @@ export class Levels {
     //   return blocks;
     // }, [count, types, seed]);
   
-    console.log('blocks:', blocks);
     
   
     const rtn = [];
-    rtn.push(this.blocks.BlockEmpty([0, 0, 0]));
+    rtn.push(await this.blocks.BlockEmpty([0, 0, 0]));
+
     blocks.map((Block, index) => {
-      console.log('Block:', Block);
       rtn.push((this.blocks as any)[Block]([0, 0, -(index + 1) * 4], difficulty));
+
       // key={index}
       // position={[0, 0, -(index + 1) * 4]}
       // difficulty={difficulty}
     })
   
-    rtn.push(this.blocks.BlockEmpty([0, 0, -(count + 1) * 4]));
-    rtn.push(this.blocks.BlockEnd([0, 0, -(count + 2) * 4]));
-    rtn.push(this.Bounds(count + 3));
+    rtn.push(await this.blocks.BlockEmpty([0, 0, -(count + 1) * 4]));
+    rtn.push(await this.blocks.BlockEnd([0, 0, -(count + 2) * 4]));
+    // rtn.push(this.Bounds(count + 3));
+
     return rtn;
   
   

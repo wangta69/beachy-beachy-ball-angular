@@ -107,7 +107,7 @@ export class Blocks {
           color: 'tomato'
         },
         
-        object3d: {
+        mesh: {
           castShadow: true, 
           receiveShadow: true,
           scale: {x:4.5, y:0.3, z:0.3}
@@ -204,7 +204,7 @@ export class Blocks {
           color: 'tomato'
         },
         
-        object3d: {
+        mesh: {
           scale: {x:2.25, y:0.3, z:0.3}, castShadow: true, receiveShadow: true
         }
       }
@@ -232,7 +232,7 @@ export class Blocks {
           color: 'tomato'
         },
         
-        object3d: {
+        mesh: {
           scale: {x:1.8, y:0.3, z:0.3}, castShadow: true, receiveShadow: true
         }
       }
@@ -343,7 +343,7 @@ export class Blocks {
           color: 'tomato'
         },
         
-        object3d: {
+        mesh: {
           scale: {x:4, y:0.3, z:0.3}, castShadow: true, receiveShadow: true
         }
       }
@@ -432,7 +432,7 @@ export class Blocks {
           color: 'tomato'
         },
         
-        object3d: {
+        mesh: {
           scale: {x:4, y:0.3, z:0.3}, castShadow: true, receiveShadow: true
         }
       }
@@ -457,7 +457,7 @@ export class Blocks {
           color: 'tomato'
         },
         
-        object3d: {
+        mesh: {
           scale: {x:4, y:0.3, z:0.3}, castShadow: true, receiveShadow: true
         }
       }
@@ -566,7 +566,7 @@ export class Blocks {
           color: 'tomato'
         },
         
-        object3d: {
+        mesh: {
           scale: {x:4, y:0.3, z:3}, castShadow: true, receiveShadow: true
         }
       }
@@ -653,7 +653,7 @@ export class Blocks {
           color: 'tomato'
         },
         
-        object3d: {
+        mesh: {
           position:{x:0, y:0.4, z:0}, 
         rotation:{x:0.75, y:0, z:0}, scale: {x:4, y:0.3, z:1.5}, castShadow: true, receiveShadow: true
         }
@@ -756,7 +756,7 @@ export class Blocks {
           color: 'tomato'
         },
         
-        object3d: {
+        mesh: {
           scale: {x:4.5, y:0.3, z:0.3}, castShadow: true, receiveShadow: true
         }
       }
@@ -847,7 +847,7 @@ export class Blocks {
           color: 'tomato'
         },
         
-        object3d: {
+        mesh: {
           scale: {x:1, y:1.8, z:0.3}, castShadow: true, receiveShadow: true
         }
       }
@@ -871,7 +871,7 @@ export class Blocks {
           color: 'tomato'
         },
         
-        object3d: {
+        mesh: {
           scale: {x:1, y:1.8, z:0.3}, castShadow: true, receiveShadow: true
         }
       }
@@ -1003,7 +1003,6 @@ export class Blocks {
    * BlockEnd
    */
   public async BlockEnd(position = [0, 0, 0]) {
-    console.log('BlockEnd...............');
     const group = new THREE.Object3D();
     group.position.set(position[0], position[1], position[2]);
 
@@ -1029,7 +1028,7 @@ export class Blocks {
     }
    
     const rigidBody: RigidBody = new RigidBody(this.game.rapier);
-    await rigidBody.create(
+    const rigidbody = await rigidBody.create(
       {
         rigidBody: {
           type:'fixed', 
@@ -1038,14 +1037,16 @@ export class Blocks {
           rotation:{x:0, y:Math.PI / 2, z:0}, 
           restitution:0.2, friction: 0
         },
-        object3d: star,
+        mesh: star,
       }
     );
+
+    // group.add(rigidbody);
 
   
     // const star = rigidBody.meshObject.mesh;
     // group.add(star);
-
+/*
     const tween = {
       prerotate: 0,
       rotate: -1,
@@ -1078,7 +1079,7 @@ export class Blocks {
         
       }
     });
-
+*/
     return group;
     // this.createRigidBody(
     //   {type:'fixed', colliders: 'trimesh', position: [0, 1.05, 0], rotation:[0, Math.PI / 2, 0], restitution:0.2, friction: 0},

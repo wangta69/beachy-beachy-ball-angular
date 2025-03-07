@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import RAPIER from '@dimforge/rapier3d-compat';
+import RAPIER, { Vector3 } from '@dimforge/rapier3d-compat';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import {RapierDebugRenderer} from './rapier/RapierDebugRenderer'
 // import {Animation} from './Animation';
 
 export class World {
@@ -9,10 +10,12 @@ export class World {
 
   private container: any;
   public scene = new THREE.Scene();
-  public rapierWorld!:RAPIER.World;
+  // public rapierWorld!:RAPIER.World;
   private clock = new THREE.Clock();
 
-  public dynamicBodies: [THREE.Object3D, RAPIER.RigidBody][] = [];
+  private rapierDebugRenderer: RapierDebugRenderer;
+
+  // public dynamicBodies: [THREE.Object3D, RAPIER.RigidBody][] = [];
 
   private controls!:OrbitControls;
 
@@ -34,9 +37,10 @@ export class World {
   constructor( game: any ) {
 
     // super( true );
-    console.log('====================');
+
     this.game = game;
-    this.createRapier();
+    // this.createRapier();
+   
 
     this.container = document.getElementById('game');
 
@@ -75,6 +79,8 @@ export class World {
     helper.position.y = -75;
     this.scene.add( helper );
 
+    this.rapierDebugRenderer = new RapierDebugRenderer(this.scene, this.game.rapier.world)
+
     setTimeout(() => {
       this.update();
     }, 1000);
@@ -82,28 +88,78 @@ export class World {
 
   }
 
-  private async createRapier() {
+  // private async createRapier() {
 
-    await RAPIER.init(); // This line is only needed if using the compat version
-    const gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
-    this.rapierWorld = new RAPIER.World(gravity);
+  //   await RAPIER.init(); // This line is only needed if using the compat version
+  //   const gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
+  //   this.rapierWorld = new RAPIER.World(gravity);
 
 
    
-  }
+  // }
 
   public render() {
 
-    const delta = this.clock.getDelta();
-    this.rapierWorld.timestep = Math.min(delta, 0.1)
-    this.rapierWorld.step()
 
-    for (let i = 0, n = this.dynamicBodies.length; i < n; i++) {
-      this.dynamicBodies[i][0].position.copy(this.dynamicBodies[i][1].translation())
-      this.dynamicBodies[i][0].quaternion.copy(this.dynamicBodies[i][1].rotation())
+    const delta = this.clock.getDelta();
+    this.game.rapier.world.timestep = Math.min(delta, 0.1);
+    this.game.rapier.world.step();
+    // this.rapierWorld.step()
+
+
+    // const { vertices, colors } = this.game.rapier.world.debugRender()
+
+    // for (let i = 0, n = this.dynamicBodies.length; i < n; i++) {
+    //   this.dynamicBodies[i][0].position.copy(this.dynamicBodies[i][1].translation())
+    //   this.dynamicBodies[i][0].quaternion.copy(this.dynamicBodies[i][1].rotation())
+    // }
+    for (let i = 0, n = this.game.rapier.dynamicBodies.length; i < n; i++) {
+      // const { vertices, colors } = this.game.rapier.world.debugRender()
+     
+      // this.game.rapier.dynamicBodies[i][0].position.copy(this.game.rapier.dynamicBodies[i][1].translation())
+      // this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
+      // console.log('===========================');
+      // console.log(this.game.rapier.dynamicBodies[i][1].translation());
+      if(this.game.rapier.dynamicBodies[i][0].parent instanceof THREE.Scene) {
+        this.game.rapier.dynamicBodies[i][0].position.copy(this.game.rapier.dynamicBodies[i][1].translation())
+        this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
+      } else {
+        
+        const position = this.game.rapier.dynamicBodies[i][1].translation();
+        var v =  new THREE.Vector3(position.x, position.y, position.z); // world position
+        // console.log(v);
+        // var nowposition = this.game.rapier.dynamicBodies[i][0].parent.worldToLocal(v);
+        // console.log('nowposition:', nowposition);
+        // v.copy(this.game.rapier.dynamicBodies[i][0].position);
+        // this.game.rapier.dynamicBodies[i][0].localToWorld(v);
+        
+        this.game.rapier.dynamicBodies[i][0].position.copy(this.game.rapier.dynamicBodies[i][1].translation())
+        this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
+
+        // const position = this.game.rapier.dynamicBodies[i][1].translation();
+        // // console.log('position:', position);
+        // const vector3 = new THREE.Vector3(position.x, position.y, position.z);
+        // // console.log('vector3:', vector3);
+        // const newPosition = this.game.rapier.dynamicBodies[i][0].clone().worldToLocal(vector3);
+        // this.game.rapier.dynamicBodies[i][0].position.copy(newPosition);
+        // // console.log('newPosition:', newPosition);
+        // // console.log('this.game.rapier.dynamicBodies[i][1].translation():', this.game.rapier.dynamicBodies[i][1].translation());
+        // this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
+      }
+      
+      // this.game.rapier.dynamicBodies[i][0].position.copy(this.game.rapier.dynamicBodies[i][1].translation())
+      // const rigid = this.game.rapier.dynamicBodies[i][1].translation();
+      // console.log('this.game.rapier.dynamicBodies[i][1].translation():', [rigid.x, rigid.y, rigid.z])
+      // console.log('this.game.rapier.dynamicBodies[i][0]:', this.game.rapier.dynamicBodies[i][0].position.clone())
+      // this.game.rapier.dynamicBodies[i][0].position.clone().copy( rigid );
+      // new Vector(rigid.x, rigid.y, rigid.z).worldToLocal( this.game.rapier.dynamicBodies[i][0].position );
+      // this.game.rapier.dynamicBodies[i][0].position.updateWorldMatrix(true, true);
+
+      // this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
     }
     
     this.controls.update();
+    this.rapierDebugRenderer.update();
     this.renderer.render( this.scene, this.camera );
   }
 

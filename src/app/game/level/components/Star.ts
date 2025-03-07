@@ -26,9 +26,9 @@ export default function Star(props: any) {
       resolve(star);
         
     }, ( xhr ) => {// called while loading is progressing
-      console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+      // console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
     }, ( error ) => {// called when loading has errors
-      console.log( 'An error happened' );
+      // console.log( 'An error happened' );
     });
   })
 

@@ -9,12 +9,13 @@
 // import { useState, useEffect, useRef } from "react";
 import * as THREE from "three";
 import RAPIER from '@dimforge/rapier3d-compat';
-
+import {RigidBody} from './rapier/RigidBody';
 // import useGame from "./stores/useGame.js";
+import {Mesh} from './threejs/Mesh';
 
 export class Ball {
   private game: any;
-  private bodyMesh!:THREE.Mesh; 
+  private bodyMesh!:THREE.Object3D | THREE.Mesh; 
   private rigidBody!: RAPIER.RigidBody;
   private shapeBody!: RAPIER.ColliderDesc;
 
@@ -25,26 +26,83 @@ export class Ball {
     this.createBall();
   }
 
-  private createBall() {
+  private async createBall() {
 
-    const ballTexture = new THREE.TextureLoader().load( '/textures/beach_ball_texture.png' );
+ 
+  //  const ballTexture = await new THREE.TextureLoader().load( '/textures/beach_ball_texture.png' );
 
-    const sphereGeometry = new THREE.SphereGeometry(0.3, 128, 128);
-    const meshStandardMaterial = new THREE.MeshStandardMaterial({  map: ballTexture, flatShading: true });
-    // const meshStandardMaterial = new THREE.MeshStandardMaterial({  flatShading: true });
-    this.bodyMesh = new THREE.Mesh( sphereGeometry, meshStandardMaterial);
-    this.bodyMesh.castShadow = true;
-    // sphereGeometry.scale(10, 10, 10); // 공이 안보여서 임시로
+    // const sphereGeometry = new THREE.SphereGeometry(0.3, 128, 128);
+    // const meshStandardMaterial = new THREE.MeshStandardMaterial({  map: ballTexture, flatShading: true });
+    // // const meshStandardMaterial = new THREE.MeshStandardMaterial({  flatShading: true });
+    // this.bodyMesh = new THREE.Mesh( sphereGeometry, meshStandardMaterial);
+    // this.bodyMesh.castShadow = true;
+    // // sphereGeometry.scale(10, 10, 10); // 공이 안보여서 임시로
+    // this.game.world.scene.add(this.bodyMesh);
+    // this.bodyMesh.position.set(0, 1, 0);
+
+
+    // this.rigidBody = this.game.world.rapierWorld.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0, 5, 0).setCanSleep(false));
+    // this.shapeBody = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5).setMass(1).setRestitution(1.1);
+    // this.game.world.rapierWorld.createCollider(this.rigidBody, this.shapeBody);
+    // this.game.world.dynamicBodies.push([this.bodyMesh, this.shapeBody]);
+
+    const mesh = new Mesh();
+
+    const ball = await mesh.create({
+      geometry: {type: 'sphere', radius: 0.3, width: 128, height: 128}, 
+      material: {type: 'standard', textureUrl: '/textures/beach_ball_texture.png', flatShading: true},
+      mesh: {castShadow: true, receiveShadow: true}
+    });
+
+    this.bodyMesh = ball;
+
+    const rigidBody: any = new RigidBody(this.game.rapier);
+    rigidBody.create(
+      {
+        rigidBody: {
+          // type:'kinematicPosition', 
+          colliders:'ball',
+          restitution:0.2,
+          friction:1,
+          linearDamping:0.5,
+          angulularDamping:0.5,
+          position:{x:0, y:1, z:0}
+        },
+        object3d:ball
+      }
+    );
+
+
+    // rigidBody.create(
+    //   {
+    //     rigidBody: {
+    //       // type:'kinematicPosition', 
+    //       colliders:'ball',
+    //       restitution:0.2,
+    //       friction:1,
+    //       linearDamping:0.5,
+    //       angulularDamping:0.5,
+    //       position:{x:0, y:1, z:0}
+    //     },
+    //     geometry: {
+    //       type: 'sphere',
+    //       radius: 0.3, width: 128, height: 128
+    //     },
+    //     material: {
+    //       type: 'standard',
+    //       map: ballTexture,
+    //       flatShading: true
+    //     },
+        
+    //     mesh: {
+    //       castShadow: true, 
+    //       receiveShadow: true
+    //     }
+    //   }
+    // );
+
+    
     this.game.world.scene.add(this.bodyMesh);
-    this.bodyMesh.position.set(0, 1, 0);
-    console.log(this.game.world.rapierWorld);
-
-    this.rigidBody = this.game.world.rapierWorld.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0, 5, 0).setCanSleep(false));
-    this.shapeBody = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5).setMass(1).setRestitution(1.1);
-    this.game.world.rapierWorld.createCollider(this.rigidBody, this.shapeBody);
-    this.game.world.dynamicBodies.push([this.bodyMesh, this.shapeBody]);
-
-
     // this.game.world.update(); 
 /*
 
@@ -84,13 +142,13 @@ export class Ball {
 
   public jump(){
     const origin = this.bodyMesh.position;
-    console.log('jump >> origin >>', origin); 
+
     origin.y -= 0.31;
     const direction = { x: 0, y: -1, z: 0 };
     const ray = new RAPIER.Ray(origin, direction);
-    console.log('ray >>', ray);
+
     const hit = this.game.world.rapierWorld.castRay(ray, 10, true); // true: considers everything as solid
-    console.log('hit>', hit);
+
     if (hit.toi < 0.15) {
       this.rigidBody.applyImpulse(new RAPIER.Vector3(0, 0.75, 0), true);
     }
@@ -109,9 +167,9 @@ export class Ball {
   // };
 
   public reset () {
-    this.shapeBody.setTranslation(0, 0.75, 0 );
-    this.rigidBody.setLinvel(new RAPIER.Vector3(0, 0, 0), true);
-    this.rigidBody.setAngvel(new RAPIER.Vector3(0, 0, 0), true);
+    // this.shapeBody.setTranslation(0, 0.75, 0 );
+    // this.rigidBody.setLinvel(new RAPIER.Vector3(0, 0, 0), true);
+    // this.rigidBody.setAngvel(new RAPIER.Vector3(0, 0, 0), true);
   };
 
   // private reset () {
@@ -222,7 +280,6 @@ export class Ball {
   });
 */
   // function onHit() {
-  //   console.log("Ball hit something!")
   //   hitSound.currentTime = 0
   //   hitSound.volume = Math.random() * 0.1
   //   hitSound.play()

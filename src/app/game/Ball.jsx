@@ -147,7 +147,6 @@ export default function Ball() {
   });
 
   // function onHit() {
-  //   console.log("Ball hit something!")
   //   hitSound.currentTime = 0
   //   hitSound.volume = Math.random() * 0.1
   //   hitSound.play()
