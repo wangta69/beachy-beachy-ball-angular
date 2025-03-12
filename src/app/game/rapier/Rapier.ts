@@ -6,8 +6,8 @@ import RAPIER from '@dimforge/rapier3d-compat';
 
 export class Rapier {
   public world!: RAPIER.World;
-  public dynamicBodies: [THREE.Object3D, RAPIER.RigidBody][] = [];
-
+  // public dynamicBodies: [THREE.Object3D, RAPIER.RigidBody][] = [];
+  public dynamicBodies: any[] = [];
   /**
    * 
    * @param args 
@@ -21,8 +21,6 @@ export class Rapier {
     await RAPIER.init(); // This line is only needed if using the compat version
     const gravity = new RAPIER.Vector3(x, y, z);
     this.world = new RAPIER.World(gravity);
-    console.log('async initRapier........this.world:', this.world);
-
   }
 
 

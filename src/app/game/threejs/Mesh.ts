@@ -42,6 +42,7 @@ export class Mesh {
     args.scale? this.mesh.scale.set(args.scale.x, args.scale.y, args.scale.z): null;
     this.mesh.castShadow = args.castShadow || false;
     this.mesh.receiveShadow = args.receiveShadow || false;
+    this.mesh.position.set(args.position.x, args.position.y, args.position.z);
 
     return this.mesh;
   }

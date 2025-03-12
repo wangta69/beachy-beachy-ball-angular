@@ -171,8 +171,9 @@ export interface ColliderOptions<ColliderArgs extends Array<unknown>> {
   /**
    * The scale of this collider relative to the rigid body
    */
-  scale?: any[][]; // ThreeElements["object3D"]["scale"];
-
+  // scale?: any[][]; // ThreeElements["object3D"]["scale"];
+  // scale?: number[][]; // ThreeElements["object3D"]["scale"];
+  scale?: any[]; 
   /**
    * Callback when this collider collideas with another collider.
    */

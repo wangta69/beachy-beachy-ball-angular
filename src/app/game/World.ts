@@ -6,8 +6,9 @@ import {RapierDebugRenderer} from './rapier/RapierDebugRenderer'
 
 export class World {
 
-  private game: any;
-
+  public game: any;
+  // public game:<T> ()= {} as T
+  
   private container: any;
   public scene = new THREE.Scene();
   // public rapierWorld!:RAPIER.World;
@@ -37,11 +38,10 @@ export class World {
   constructor( game: any ) {
 
     // super( true );
-
     this.game = game;
     // this.createRapier();
    
-
+    // this.game.ball;
     this.container = document.getElementById('game');
 
     const sceneWidth = window.innerWidth;
@@ -55,10 +55,6 @@ export class World {
     // this.setAxesHelper();
     this.resize();
     window.addEventListener( 'resize', () => this.resize(), false );
-
-
-
-
 
 
     const fov = 25; // 45
@@ -113,52 +109,23 @@ export class World {
     //   this.dynamicBodies[i][0].position.copy(this.dynamicBodies[i][1].translation())
     //   this.dynamicBodies[i][0].quaternion.copy(this.dynamicBodies[i][1].rotation())
     // }
+    // for (let i = 0, n = this.game.rapier.dynamicBodies.length; i < n; i++) {
+    //   this.game.rapier.dynamicBodies[i][0].position.copy(this.game.rapier.dynamicBodies[i][1].translation())
+    //   this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
+    // }
+
     for (let i = 0, n = this.game.rapier.dynamicBodies.length; i < n; i++) {
-      // const { vertices, colors } = this.game.rapier.world.debugRender()
-     
-      // this.game.rapier.dynamicBodies[i][0].position.copy(this.game.rapier.dynamicBodies[i][1].translation())
-      // this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
-      // console.log('===========================');
-      // console.log(this.game.rapier.dynamicBodies[i][1].translation());
-      if(this.game.rapier.dynamicBodies[i][0].parent instanceof THREE.Scene) {
-        this.game.rapier.dynamicBodies[i][0].position.copy(this.game.rapier.dynamicBodies[i][1].translation())
-        this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
-      } else {
-        
-        const position = this.game.rapier.dynamicBodies[i][1].translation();
-        var v =  new THREE.Vector3(position.x, position.y, position.z); // world position
-        // console.log(v);
-        // var nowposition = this.game.rapier.dynamicBodies[i][0].parent.worldToLocal(v);
-        // console.log('nowposition:', nowposition);
-        // v.copy(this.game.rapier.dynamicBodies[i][0].position);
-        // this.game.rapier.dynamicBodies[i][0].localToWorld(v);
-        
-        this.game.rapier.dynamicBodies[i][0].position.copy(this.game.rapier.dynamicBodies[i][1].translation())
-        this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
-
-        // const position = this.game.rapier.dynamicBodies[i][1].translation();
-        // // console.log('position:', position);
-        // const vector3 = new THREE.Vector3(position.x, position.y, position.z);
-        // // console.log('vector3:', vector3);
-        // const newPosition = this.game.rapier.dynamicBodies[i][0].clone().worldToLocal(vector3);
-        // this.game.rapier.dynamicBodies[i][0].position.copy(newPosition);
-        // // console.log('newPosition:', newPosition);
-        // // console.log('this.game.rapier.dynamicBodies[i][1].translation():', this.game.rapier.dynamicBodies[i][1].translation());
-        // this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
-      }
-      
-      // this.game.rapier.dynamicBodies[i][0].position.copy(this.game.rapier.dynamicBodies[i][1].translation())
-      // const rigid = this.game.rapier.dynamicBodies[i][1].translation();
-      // console.log('this.game.rapier.dynamicBodies[i][1].translation():', [rigid.x, rigid.y, rigid.z])
-      // console.log('this.game.rapier.dynamicBodies[i][0]:', this.game.rapier.dynamicBodies[i][0].position.clone())
-      // this.game.rapier.dynamicBodies[i][0].position.clone().copy( rigid );
-      // new Vector(rigid.x, rigid.y, rigid.z).worldToLocal( this.game.rapier.dynamicBodies[i][0].position );
-      // this.game.rapier.dynamicBodies[i][0].position.updateWorldMatrix(true, true);
-
-      // this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
+      this.game.rapier.dynamicBodies[i].object3d.position.copy(this.game.rapier.dynamicBodies[i].rigidBody.translation())
+      this.game.rapier.dynamicBodies[i].object3d.quaternion.copy(this.game.rapier.dynamicBodies[i].rigidBody.rotation())
+      this.game.rapier.dynamicBodies[i].update(this.clock);
     }
     
     this.controls.update();
+    // this.game.ball.update();
+    if(this.game.ball) {
+      // console.log(delta);
+      this.game.ball.update(delta);
+    }
     this.rapierDebugRenderer.update();
     this.renderer.render( this.scene, this.camera );
   }

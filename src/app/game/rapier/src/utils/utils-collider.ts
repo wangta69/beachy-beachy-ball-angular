@@ -7,7 +7,7 @@ import {
 } from "@dimforge/rapier3d-compat";
 // import { useEffect, useMemo } from "react";
 import { BufferGeometry, Euler, Mesh, Object3D, Vector3 } from "three";
-// import { mergeVertices } from "three-stdlib";
+import { mergeVertices } from './BufferGeometryUtils';
 import { ColliderProps, RigidBodyProps } from "..";
 import {
   ColliderState,
@@ -283,6 +283,7 @@ export const createColliderPropsFromChildren: CreateColliderPropsFromChildren =
         if (ignoreMeshColliders && isChildOfMeshCollider(child as Mesh)) return;
 
         const worldScale = child.getWorldScale(_scale);
+
         const shape = autoColliderMap[
           options.colliders || "cuboid"
         ] as ColliderShape;
@@ -290,9 +291,8 @@ export const createColliderPropsFromChildren: CreateColliderPropsFromChildren =
         child.updateWorldMatrix(true, false);
         _matrix4
           .copy(child.matrixWorld)
-          .premultiply(invertedParentMatrixWorld)
+          // .premultiply(invertedParentMatrixWorld)
           .decompose(_position, _rotation, _scale);
-
         const rotationEuler = new Euler().setFromQuaternion(_rotation, "XYZ");
 
         const { geometry } = child as Mesh;
@@ -300,7 +300,6 @@ export const createColliderPropsFromChildren: CreateColliderPropsFromChildren =
           geometry,
           options.colliders || "cuboid"
         );
-
         // const colliderProps: ColliderProps = {
         const colliderProps: any = {
           ...cleanRigidBodyPropsForCollider(options),
@@ -329,9 +328,12 @@ export const createColliderPropsFromChildren: CreateColliderPropsFromChildren =
   };
 
 export const getColliderArgsFromGeometry = (
-  geometry: BufferGeometry,
-  colliders: RigidBodyAutoCollider
-): { args: unknown[]; offset: Vector3 } => {
+  geometry: any,
+  colliders: string
+  // geometry: BufferGeometry,
+  // colliders: RigidBodyAutoCollider
+) => {
+// ): { args: unknown[]; offset: Vector3 } => {
   switch (colliders) {
     case "cuboid":
       {
@@ -363,17 +365,19 @@ export const getColliderArgsFromGeometry = (
 
     case "trimesh":
       {
-        // const clonedGeometry = geometry.index
-        //   ? geometry.clone()
-        //   : mergeVertices(geometry);
         const clonedGeometry = geometry.index
           ? geometry.clone()
-          : geometry.clone();
+          : mergeVertices(geometry);
+        // const clonedGeometry = geometry.index
+        //   ? geometry.clone()
+        //   : geometry.clone();
+        // console.log('trimesh >> index', geometry);
+        // const clonedGeometry = geometry.clone();
 
         return {
           args: [
-            // clonedGeometry.attributes.position.array as Float32Array,
-            // clonedGeometry.index?.array as Uint32Array
+            (clonedGeometry.attributes as any).position.array as Float32Array,
+            clonedGeometry.index?.array as Uint32Array
           ],
           offset: new Vector3()
         };
@@ -385,10 +389,10 @@ export const getColliderArgsFromGeometry = (
         const g = geometry.clone();
 
         return {
-           args: [],
-          offset: new Vector3()
-          // args: [g.attributes.position.array as Float32Array],
+          // args: [],
           // offset: new Vector3()
+          args: [(g.attributes as any).position.array as Float32Array],
+          offset: new Vector3()
         };
       }
       break;

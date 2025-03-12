@@ -9,42 +9,31 @@
 // import { useState, useEffect, useRef } from "react";
 import * as THREE from "three";
 import RAPIER from '@dimforge/rapier3d-compat';
-import {RigidBody} from './rapier/RigidBody';
+import {RigidBody} from '../rapier/RigidBody';
+import { BehaviorSubject  } from 'rxjs';
 // import useGame from "./stores/useGame.js";
-import {Mesh} from './threejs/Mesh';
+import {Mesh} from '../threejs/Mesh';
 
 export class Ball {
   private game: any;
   private bodyMesh!:THREE.Object3D | THREE.Mesh; 
-  private rigidBody!: RAPIER.RigidBody;
+  private body!: RAPIER.RigidBody;
   private shapeBody!: RAPIER.ColliderDesc;
+  private direction: string | null = null;
+  // public update = ()=>{};
 
   // public dynamicBodies: [THREE.Object3D, RAPIER.RigidBody][] = [];
   // private rigidBody
   constructor( game: any ) {
     this.game = game;
     this.createBall();
+    (window as any).keyboardHandler$ = new BehaviorSubject<string | null>(null);
+    (window as any).keyboardHandler$.asObservable().subscribe((direction: string | null) => {
+      this.direction = direction;
+    });
   }
 
   private async createBall() {
-
- 
-  //  const ballTexture = await new THREE.TextureLoader().load( '/textures/beach_ball_texture.png' );
-
-    // const sphereGeometry = new THREE.SphereGeometry(0.3, 128, 128);
-    // const meshStandardMaterial = new THREE.MeshStandardMaterial({  map: ballTexture, flatShading: true });
-    // // const meshStandardMaterial = new THREE.MeshStandardMaterial({  flatShading: true });
-    // this.bodyMesh = new THREE.Mesh( sphereGeometry, meshStandardMaterial);
-    // this.bodyMesh.castShadow = true;
-    // // sphereGeometry.scale(10, 10, 10); // 공이 안보여서 임시로
-    // this.game.world.scene.add(this.bodyMesh);
-    // this.bodyMesh.position.set(0, 1, 0);
-
-
-    // this.rigidBody = this.game.world.rapierWorld.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0, 5, 0).setCanSleep(false));
-    // this.shapeBody = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5).setMass(1).setRestitution(1.1);
-    // this.game.world.rapierWorld.createCollider(this.rigidBody, this.shapeBody);
-    // this.game.world.dynamicBodies.push([this.bodyMesh, this.shapeBody]);
 
     const mesh = new Mesh();
 
@@ -57,7 +46,7 @@ export class Ball {
     this.bodyMesh = ball;
 
     const rigidBody: any = new RigidBody(this.game.rapier);
-    rigidBody.create(
+    this.body = await rigidBody.create(
       {
         rigidBody: {
           // type:'kinematicPosition', 
@@ -71,36 +60,6 @@ export class Ball {
         object3d:ball
       }
     );
-
-
-    // rigidBody.create(
-    //   {
-    //     rigidBody: {
-    //       // type:'kinematicPosition', 
-    //       colliders:'ball',
-    //       restitution:0.2,
-    //       friction:1,
-    //       linearDamping:0.5,
-    //       angulularDamping:0.5,
-    //       position:{x:0, y:1, z:0}
-    //     },
-    //     geometry: {
-    //       type: 'sphere',
-    //       radius: 0.3, width: 128, height: 128
-    //     },
-    //     material: {
-    //       type: 'standard',
-    //       map: ballTexture,
-    //       flatShading: true
-    //     },
-        
-    //     mesh: {
-    //       castShadow: true, 
-    //       receiveShadow: true
-    //     }
-    //   }
-    // );
-
     
     this.game.world.scene.add(this.bodyMesh);
     // this.game.world.update(); 
@@ -147,29 +106,19 @@ export class Ball {
     const direction = { x: 0, y: -1, z: 0 };
     const ray = new RAPIER.Ray(origin, direction);
 
-    const hit = this.game.world.rapierWorld.castRay(ray, 10, true); // true: considers everything as solid
-
-    if (hit.toi < 0.15) {
-      this.rigidBody.applyImpulse(new RAPIER.Vector3(0, 0.75, 0), true);
-    }
+    const hit = this.game.rapier.world.castRay(ray, 10, true); // true: considers everything as solid
+    console.log('hit:', hit);
+    // if (hit.toi < 0.15) {
+    console.log('this.body:', this.body);
+      this.body.applyImpulse(new RAPIER.Vector3(0, 0.75, 0), true);
+    // }
   };
 
-  // public jump(){
-  //   const origin = this.bodyMesh.current.translation();
-  //   origin.y -= 0.31;
-  //   const direction = { x: 0, y: -1, z: 0 };
-  //   const ray = new rapier.Ray(origin, direction);
-  //   const hit = world.castRay(ray, 10, true); // true: considers everything as solid
-
-  //   if (hit.toi < 0.15) {
-  //     body.current.applyImpulse({ x: 0, y: 0.75, z: 0 });
-  //   }
-  // };
 
   public reset () {
     // this.shapeBody.setTranslation(0, 0.75, 0 );
-    // this.rigidBody.setLinvel(new RAPIER.Vector3(0, 0, 0), true);
-    // this.rigidBody.setAngvel(new RAPIER.Vector3(0, 0, 0), true);
+    // this.body.setLinvel(new RAPIER.Vector3(0, 0, 0), true);
+    // this.body.setAngvel(new RAPIER.Vector3(0, 0, 0), true);
   };
 
   // private reset () {
@@ -215,6 +164,91 @@ export class Ball {
   //     unsubscribeAny();
   //   };
   // }, []);
+
+
+  public update(delta: number) {
+
+   
+    // const { forward, backward, leftward, rightward } = getKeys();
+
+    // (window as any).keyboardHandler$.asObservable().subscribe((direction: string) => {
+     
+    //   // (window as any).keyboardHandler$.asObservable().next(null);
+    // // 수신
+    if(this.direction){
+
+   
+       
+        const impulse = { x: 0, y: 0, z: 0 };
+        const torque = { x: 0, y: 0, z: 0 };
+
+        const impulseStrength = 0.6 * delta;
+        const torqueStrength = 0.2 * delta;
+
+        // console.log(this.direction, delta, impulseStrength, torqueStrength);
+
+        switch(this.direction) {
+          case 'forward':
+            impulse.z -= impulseStrength;
+            torque.x -= torqueStrength;
+            break;
+    
+          case 'rightward':
+            impulse.x += impulseStrength;
+            torque.z -= torqueStrength;
+            break;
+    
+          case 'backward':
+            impulse.z += impulseStrength;
+            torque.x += torqueStrength;
+            break;
+    
+          case 'leftward':
+            impulse.x -= impulseStrength;
+            torque.z += torqueStrength;
+            break;
+        }
+
+        // console.log(this.body);
+        
+
+        this.body.applyImpulse(impulse, true);
+        this.body.applyTorqueImpulse(torque, true);
+        // console.log('===================');
+        /*
+        // Camera
+
+        const bodyPosition = this.body.current.translation();
+
+        const cameraPosition = new THREE.Vector3();
+        cameraPosition.copy(bodyPosition);
+        cameraPosition.z += 2.25;
+        cameraPosition.y += 0.65;
+
+        const cameraTarget = new THREE.Vector3();
+        cameraTarget.copy(bodyPosition);
+        cameraTarget.y += 0.25;
+
+        smoothedCameraPosition.lerp(cameraPosition, 5 * delta);
+        smoothedCameraTarget.lerp(cameraTarget, 5 * delta);
+
+        state.camera.position.copy(smoothedCameraPosition);
+        state.camera.lookAt(smoothedCameraTarget);
+
+        
+        // Restart
+        
+        if (bodyPosition.y < -4) {
+          restart();
+        }
+        */
+        // (window as any).keyboardHandler$.next(null);
+       }
+    // });
+
+    
+   
+  }
 /*
   useFrame((state, delta) => {
     

@@ -1018,7 +1018,7 @@ export class Blocks {
       receiveShadow: true, 
       scale:{x:0.012, y:0.012, z:0.012}});
 
-    // const star: any = await Star(null);;
+
     group.add(star);
 
     if ("isMesh" in group) {

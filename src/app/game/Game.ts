@@ -9,7 +9,7 @@ import { Perf } from "r3f-perf";
 import Lights from "./Lights.jsx";
 import { RandomLevel, TourLevel } from "./level/Level.jsx";
 
-import Ball from "./Ball.jsx";
+import Ball from "./objects/Ball.js";
 import useGame from "./stores/useGame.js";
 import useAudio from "./stores/useAudio.js";
 import { SoundManager } from "./utils/SoundManager.jsx";

@@ -5,7 +5,7 @@
 
 import {
   Blocks
-} from "./Blocks";
+} from "../../objects/Blocks";
 
 // const blocks = new Blocks();
 const levels = [

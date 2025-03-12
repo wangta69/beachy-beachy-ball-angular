@@ -5,6 +5,8 @@
 //   useRef,
 //   useState
 // } from "react";
+
+import * as THREE from "three";
 import {
   rapierContext,
   RapierContext,
@@ -91,6 +93,7 @@ export const useChildColliderProps = <O extends Object3D>(
   // ignoreMeshColliders = true
 
   ref: any,
+  // ref: THREE.Object3D<O>,
   options: RigidBodyProps,
   ignoreMeshColliders = true
 ) => {

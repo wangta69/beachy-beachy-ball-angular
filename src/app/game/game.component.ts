@@ -1,12 +1,12 @@
 import { Component,OnInit,AfterViewInit,ViewChild,ElementRef, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-
+import { Subject } from 'rxjs';
 import * as THREE from 'three';
 import {World} from './World';
 import {Rapier} from './rapier/Rapier';
 import {RigidBody} from './rapier/RigidBody';
-import {Ball} from './Ball';
+import {Ball} from './objects/Ball';
 // import {BlockEmpty} from './level/components/Blocks';
 import {Levels} from './level/Level';
 import { getLocalStorage, setLocalStorage } from './stores/utils';
@@ -21,10 +21,10 @@ import { getLocalStorage, setLocalStorage } from './stores/utils';
 export class GameComponent implements OnInit, AfterViewInit{
 
   private world!:World;
-  private ball!:Ball;
+  public ball!:Ball;
   private rigidBody!: RigidBody;
   // private rapier!: Rapier; // = new Rapier(0.0, -9.81, 0.0);
-  private rapier = new Rapier();
+  private rapier:Rapier = new Rapier();
   private isInGame = false;
   public isSettings = false;
   private performance = false;
@@ -76,7 +76,6 @@ export class GameComponent implements OnInit, AfterViewInit{
 
   // controller part start
   private handleKeyDown(e: any) {
-
     switch(e.code) {
       case 'KeyR':
         this.restart(); break;
@@ -85,12 +84,17 @@ export class GameComponent implements OnInit, AfterViewInit{
       case 'KeyP': // Toggle performance
         this.showPerformance(); break;
       case 'ArrowUp': case 'KeyW': // forward
+        // (window as any).keyboardHandler$ = new Subject<string>();
+        (window as any).keyboardHandler$.next('forward');
         break;
       case 'ArrowDown': case 'KeyS':
+      (window as any).keyboardHandler$.next('backward');
         break;
       case 'ArrowLeft': case 'KeyA':
+        (window as any).keyboardHandler$.next('leftward');
         break;
       case 'ArrowRight': case 'KeyD':
+        (window as any).keyboardHandler$.next('rightward');
         break;
       case 'Space': this.ball.jump(); break;
 
@@ -161,11 +165,16 @@ export class GameComponent implements OnInit, AfterViewInit{
     return {};
   }
 
+
+
+
   // controller part end
 
   private async create() {
     await this.rapier.initRapier(0.0, -9.81, 0.0);
     this.world = new World( this );
+    // this.world = new World<GameComponent>( GameComponent );
+    // this.world = new World( GameComponent );
     this.rigidBody = new RigidBody(this.rapier);
     setTimeout(async () => {
       this.ball = new Ball(this);

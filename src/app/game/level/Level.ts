@@ -39,7 +39,7 @@ import * as THREE from "three";
 
 import { 
   Blocks
-} from './components/Blocks';
+} from '../objects/Blocks';
 
 import levels from "./components/Levels";
 
@@ -67,7 +67,7 @@ export class Levels {
   }
   
   public async RandomLevel(
-    count = 0,
+    count = 1,
     // types = [
     //   this.blocks.BlockSpinner,
     //   this.blocks.BlockDoubleSpinner,
@@ -79,7 +79,7 @@ export class Levels {
     //   // this.blocks.BlockRamp
     // ],
     types = [
-      'BlockSpinner',
+      'BlockRamp',
     ],
 /*
     types = [
@@ -113,19 +113,13 @@ export class Levels {
     const rtn = [];
     rtn.push(await this.blocks.BlockEmpty([0, 0, 0]));
 
-    blocks.map((Block, index) => {
-      rtn.push((this.blocks as any)[Block]([0, 0, -(index + 1) * 4], difficulty));
-
-      // key={index}
-      // position={[0, 0, -(index + 1) * 4]}
-      // difficulty={difficulty}
+    blocks.map(async (Block, index) => {
+      rtn.push(await (this.blocks as any)[Block]([0, 0, -(index + 1) * 4], difficulty));
     })
-  
     rtn.push(await this.blocks.BlockEmpty([0, 0, -(count + 1) * 4]));
     rtn.push(await this.blocks.BlockEnd([0, 0, -(count + 2) * 4]));
-    // rtn.push(this.Bounds(count + 3));
 
-    return rtn;
+    return this.mergeArrays(rtn);
   
   
   
@@ -160,6 +154,10 @@ export class Levels {
       </>
     );
     */
+  }
+
+  private mergeArrays(arr: any[]) {
+    return arr.reduce((r, e) => r.concat(Array.isArray(e) ? this.mergeArrays(e) : e), [])
   }
   
   public TourLevel(difficulty = 1) {
