@@ -22,7 +22,7 @@ export class World {
 
   private renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
  
-  private camera:THREE.PerspectiveCamera; 
+  public camera:THREE.PerspectiveCamera; 
   private lights: any;
   private stage = { width: 2, height: 3 };
   private fov = 10;
@@ -100,19 +100,7 @@ export class World {
     const delta = this.clock.getDelta();
     this.game.rapier.world.timestep = Math.min(delta, 0.1);
     this.game.rapier.world.step();
-    // this.rapierWorld.step()
 
-
-    // const { vertices, colors } = this.game.rapier.world.debugRender()
-
-    // for (let i = 0, n = this.dynamicBodies.length; i < n; i++) {
-    //   this.dynamicBodies[i][0].position.copy(this.dynamicBodies[i][1].translation())
-    //   this.dynamicBodies[i][0].quaternion.copy(this.dynamicBodies[i][1].rotation())
-    // }
-    // for (let i = 0, n = this.game.rapier.dynamicBodies.length; i < n; i++) {
-    //   this.game.rapier.dynamicBodies[i][0].position.copy(this.game.rapier.dynamicBodies[i][1].translation())
-    //   this.game.rapier.dynamicBodies[i][0].quaternion.copy(this.game.rapier.dynamicBodies[i][1].rotation())
-    // }
 
     for (let i = 0, n = this.game.rapier.dynamicBodies.length; i < n; i++) {
       this.game.rapier.dynamicBodies[i].object3d.position.copy(this.game.rapier.dynamicBodies[i].rigidBody.translation())

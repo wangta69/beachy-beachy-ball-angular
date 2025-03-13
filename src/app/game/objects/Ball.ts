@@ -1,36 +1,23 @@
-// Beachy Beachy Ball
-// Copyright (c) 2023 Michael Kolesidis <michael.kolesidis@gmail.com>
-// Licensed under the GNU Affero General Public License v3.0.
-// https://www.gnu.org/licenses/gpl-3.0.html
-
-// import { useRapier, RigidBody } from "@react-three/rapier";
-// import { useFrame, useLoader } from "@react-three/fiber";
-// import { useKeyboardControls } from "@react-three/drei";
-// import { useState, useEffect, useRef } from "react";
 import * as THREE from "three";
 import RAPIER from '@dimforge/rapier3d-compat';
 import {RigidBody} from '../rapier/RigidBody';
-import { BehaviorSubject  } from 'rxjs';
-// import useGame from "./stores/useGame.js";
+
 import {Mesh} from '../threejs/Mesh';
+import { Game } from "../Game";
 
 export class Ball {
-  private game: any;
+  private game: Game;
   private bodyMesh!:THREE.Object3D | THREE.Mesh; 
   private body!: RAPIER.RigidBody;
-  private shapeBody!: RAPIER.ColliderDesc;
-  private direction: string | null = null;
-  // public update = ()=>{};
 
-  // public dynamicBodies: [THREE.Object3D, RAPIER.RigidBody][] = [];
-  // private rigidBody
-  constructor( game: any ) {
+  private direction: string | null = null;
+
+  private smoothedCameraPosition = new THREE.Vector3(0, 0, 200); // initial camera position
+  private smoothedCameraTarget = new THREE.Vector3();
+  
+  constructor( game: Game ) {
     this.game = game;
     this.createBall();
-    (window as any).keyboardHandler$ = new BehaviorSubject<string | null>(null);
-    (window as any).keyboardHandler$.asObservable().subscribe((direction: string | null) => {
-      this.direction = direction;
-    });
   }
 
   private async createBall() {
@@ -40,22 +27,27 @@ export class Ball {
     const ball = await mesh.create({
       geometry: {type: 'sphere', radius: 0.3, width: 128, height: 128}, 
       material: {type: 'standard', textureUrl: '/textures/beach_ball_texture.png', flatShading: true},
-      mesh: {castShadow: true, receiveShadow: true}
+      mesh: {castShadow: true, receiveShadow: true, position: {x:0, y:1, z:0}}
     });
+
+
 
     this.bodyMesh = ball;
 
-    const rigidBody: any = new RigidBody(this.game.rapier);
+    const rigidBody: RigidBody = new RigidBody(this.game.rapier);
+    console.log('createball--------');
     this.body = await rigidBody.create(
       {
         rigidBody: {
           // type:'kinematicPosition', 
+          name: 'ball',
           colliders:'ball',
           restitution:0.2,
           friction:1,
           linearDamping:0.5,
           angulularDamping:0.5,
-          position:{x:0, y:1, z:0}
+          // position:{x:0, y:1, z:0}
+          onCollisionEnter:this.onHit
         },
         object3d:ball
       }
@@ -86,209 +78,85 @@ export class Ball {
   */
 
   }
+
+  public action(params: any) {
+    switch(params.act) {
+      case 'jump':
+        this.jump();
+        break;
+      case 'dir':
+        this.direction = params.dir;
+        break;
+      case 'ready':
+        this.reset();
+        break;
+
+    }
+  }
   
-
-  // const body = useRef();
-  // const [subscribeKeys, getKeys] = useKeyboardControls();
-  // const { rapier, world } = useRapier();
-
-  // const [smoothedCameraPosition] = useState(
-  //   () => new THREE.Vector3(0, 0, 200) // initial camera position
-  // );
-  // const [smoothedCameraTarget] = useState(() => new THREE.Vector3());
-
-  // const { start, restart } = useGame();
-
-  public jump(){
-    const origin = this.bodyMesh.position;
-
+  private jump(){
+    // const origin = this.bodyMesh.position;
+    const origin = this.body.translation();
     origin.y -= 0.31;
+
+    // console.log('this.body:', this.body);
+    // console.log('origin 2:', origin);
     const direction = { x: 0, y: -1, z: 0 };
     const ray = new RAPIER.Ray(origin, direction);
-
-    const hit = this.game.rapier.world.castRay(ray, 10, true); // true: considers everything as solid
-    console.log('hit:', hit);
-    // if (hit.toi < 0.15) {
-    console.log('this.body:', this.body);
+    const hit: RAPIER.RayColliderHit | null = this.game.rapier.world.castRay(ray, 10, true); // true: considers everything as solid
+    
+    if (hit && hit.timeOfImpact < 0.15) {
       this.body.applyImpulse(new RAPIER.Vector3(0, 0.75, 0), true);
-    // }
+    }
   };
 
 
   public reset () {
-    // this.shapeBody.setTranslation(0, 0.75, 0 );
-    // this.body.setLinvel(new RAPIER.Vector3(0, 0, 0), true);
-    // this.body.setAngvel(new RAPIER.Vector3(0, 0, 0), true);
+    this.body.setTranslation({ x: 0, y: 0.75, z: 0 }, true);
+    this.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    this.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
   };
-
-  // private reset () {
-  //   body.current.setTranslation({ x: 0, y: 0.75, z: 0 });
-  //   body.current.setLinvel({ x: 0, y: 0, z: 0 });
-  //   body.current.setAngvel({ x: 0, y: 0, z: 0 });
-  // };
-
-  // useEffect(() => {
-  //   const unsubscribeReset = useGame.subscribe(
-  //     (state) => state.phase,
-  //     (phase) => {
-  //       if (phase === "ready") {
-  //         reset();
-  //       }
-  //       if (phase === "ready") {
-  //         reset();
-  //       }
-  //       if (phase === "ready") {
-  //         reset();
-  //       }
-  //     }
-  //   );
-
-    // const unsubscribeJump = subscribeKeys(
-    //   // selector
-    //   (state) => state.jump, // we listen to jump changes
-    //   // instructions
-    //   (value) => {
-    //     if (value) {
-    //       jump();
-    //     }
-    //   }
-    // );
-
-    // const unsubscribeAny = subscribeKeys(() => {
-    //   start();
-    // });
-
-  //   return () => {
-  //     unsubscribeReset();
-  //     unsubscribeJump();
-  //     unsubscribeAny();
-  //   };
-  // }, []);
 
 
   public update(delta: number) {
-
-   
-    // const { forward, backward, leftward, rightward } = getKeys();
-
-    // (window as any).keyboardHandler$.asObservable().subscribe((direction: string) => {
-     
-    //   // (window as any).keyboardHandler$.asObservable().next(null);
-    // // 수신
-    if(this.direction){
-
-   
-       
-        const impulse = { x: 0, y: 0, z: 0 };
-        const torque = { x: 0, y: 0, z: 0 };
-
-        const impulseStrength = 0.6 * delta;
-        const torqueStrength = 0.2 * delta;
-
-        // console.log(this.direction, delta, impulseStrength, torqueStrength);
-
-        switch(this.direction) {
-          case 'forward':
-            impulse.z -= impulseStrength;
-            torque.x -= torqueStrength;
-            break;
-    
-          case 'rightward':
-            impulse.x += impulseStrength;
-            torque.z -= torqueStrength;
-            break;
-    
-          case 'backward':
-            impulse.z += impulseStrength;
-            torque.x += torqueStrength;
-            break;
-    
-          case 'leftward':
-            impulse.x -= impulseStrength;
-            torque.z += torqueStrength;
-            break;
-        }
-
-        // console.log(this.body);
-        
-
-        this.body.applyImpulse(impulse, true);
-        this.body.applyTorqueImpulse(torque, true);
-        // console.log('===================');
-        /*
-        // Camera
-
-        const bodyPosition = this.body.current.translation();
-
-        const cameraPosition = new THREE.Vector3();
-        cameraPosition.copy(bodyPosition);
-        cameraPosition.z += 2.25;
-        cameraPosition.y += 0.65;
-
-        const cameraTarget = new THREE.Vector3();
-        cameraTarget.copy(bodyPosition);
-        cameraTarget.y += 0.25;
-
-        smoothedCameraPosition.lerp(cameraPosition, 5 * delta);
-        smoothedCameraTarget.lerp(cameraTarget, 5 * delta);
-
-        state.camera.position.copy(smoothedCameraPosition);
-        state.camera.lookAt(smoothedCameraTarget);
-
-        
-        // Restart
-        
-        if (bodyPosition.y < -4) {
-          restart();
-        }
-        */
-        // (window as any).keyboardHandler$.next(null);
-       }
-    // });
-
-    
-   
-  }
-/*
-  useFrame((state, delta) => {
-    
-    // Controls
-     
-    const { forward, backward, leftward, rightward } = getKeys();
-
     const impulse = { x: 0, y: 0, z: 0 };
     const torque = { x: 0, y: 0, z: 0 };
 
     const impulseStrength = 0.6 * delta;
     const torqueStrength = 0.2 * delta;
 
-    if (forward) {
-      impulse.z -= impulseStrength;
-      torque.x -= torqueStrength;
+    switch(this.direction) {
+      case 'forward':
+        impulse.z -= impulseStrength;
+        torque.x -= torqueStrength;
+        break;
+
+      case 'rightward':
+        impulse.x += impulseStrength;
+        torque.z -= torqueStrength;
+        break;
+
+      case 'backward':
+        impulse.z += impulseStrength;
+        torque.x += torqueStrength;
+        break;
+
+      case 'leftward':
+        impulse.x -= impulseStrength;
+        torque.z += torqueStrength;
+        break;
     }
 
-    if (rightward) {
-      impulse.x += impulseStrength;
-      torque.z -= torqueStrength;
-    }
+    this.body.applyImpulse(impulse, true);
+    this.body.applyTorqueImpulse(torque, true);
 
-    if (backward) {
-      impulse.z += impulseStrength;
-      torque.x += torqueStrength;
-    }
+    this.direction = null;
 
-    if (leftward) {
-      impulse.x -= impulseStrength;
-      torque.z += torqueStrength;
-    }
+    /**
+   * Camera
+   */
 
-    body.current.applyImpulse(impulse);
-    body.current.applyTorqueImpulse(torque);
-
-    
-    // Camera
-
-    const bodyPosition = body.current.translation();
+    const bodyPosition = this.body.translation();
 
     const cameraPosition = new THREE.Vector3();
     cameraPosition.copy(bodyPosition);
@@ -299,20 +167,28 @@ export class Ball {
     cameraTarget.copy(bodyPosition);
     cameraTarget.y += 0.25;
 
-    smoothedCameraPosition.lerp(cameraPosition, 5 * delta);
-    smoothedCameraTarget.lerp(cameraTarget, 5 * delta);
+    this.smoothedCameraPosition.lerp(cameraPosition, 5 * delta);
+    this.smoothedCameraTarget.lerp(cameraTarget, 5 * delta);
 
-    state.camera.position.copy(smoothedCameraPosition);
-    state.camera.lookAt(smoothedCameraTarget);
+    this.game.world.camera.position.copy(this.smoothedCameraPosition);
+    this.game.world.camera.lookAt(this.smoothedCameraTarget);
 
-    
-     // Restart
+
+    // Restart
     
     if (bodyPosition.y < -4) {
-      restart();
+      this.game.event.broadcast('status', {phase: 'restart'});
     }
-  });
-*/
+
+  }
+
+   private onHit() {
+    console.log('onHit.............');
+  //   hitSound.currentTime = 0
+  //   hitSound.volume = Math.random() * 0.1
+  //   hitSound.play()
+  }
+
   // function onHit() {
   //   hitSound.currentTime = 0
   //   hitSound.volume = Math.random() * 0.1

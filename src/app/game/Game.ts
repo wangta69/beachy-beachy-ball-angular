@@ -1,76 +1,291 @@
-// Beachy Beachy Ball
-// Copyright (c) 2023 Michael Kolesidis <michael.kolesidis@gmail.com>
-// Licensed under the GNU Affero General Public License v3.0.
-// https://www.gnu.org/licenses/gpl-3.0.html
+import { Component,OnInit,AfterViewInit,ViewChild,ElementRef, NO_ERRORS_SCHEMA } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { Subject, filter, map } from 'rxjs';
+import * as THREE from 'three';
+import {World} from './World';
+import {Rapier} from './rapier/Rapier';
+import {RigidBody} from './rapier/RigidBody';
+import {Ball} from './objects/Ball';
+// import {BlockEmpty} from './level/components/Blocks';
+import {Levels} from './level/Level';
+import { getLocalStorage, setLocalStorage } from './stores/utils';
+import {Event, Message} from './utils/Event';
+// import { Observable, filter, map } from 'rxjs';
+@Component({
+  selector: 'app-root',
+  schemas: [NO_ERRORS_SCHEMA],
+  imports: [CommonModule, MatIconModule],
+  templateUrl: './game.html',
+  styleUrls: ['./game.scss']
+})
+export class Game implements OnInit, AfterViewInit{
 
-import {} from "@react-three/drei";
-import { Physics } from "@react-three/rapier";
-import { Perf } from "r3f-perf";
-import Lights from "./Lights.jsx";
-import { RandomLevel, TourLevel } from "./level/Level.jsx";
+  public world!:World;
+  public ball!:Ball;
+  private rigidBody!: RigidBody;
+  // private rapier!: Rapier; // = new Rapier(0.0, -9.81, 0.0);
+  public rapier:Rapier = new Rapier();
+  private isInGame = false;
+  public isSettings = false;
+  private performance = false;
+  public mode = 'random';
+  public difficulty = 1;
+  public blocksCount = 10;
 
-import Ball from "./objects/Ball.js";
-import useGame from "./stores/useGame.js";
-import useAudio from "./stores/useAudio.js";
-import { SoundManager } from "./utils/SoundManager.jsx";
-import { useEffect } from "react";
+  private levels!:Levels;
+  public level = 'copacabana';
 
-export default function Experience() {
-  const mode = useGame((state) => state.mode);
-  const performance = useGame((state) => state.performance);
-  const showPerformance = useGame((state) => state.showPerformance);
-  const restart = useGame((state) => state.restart);
-  const difficulty = useGame((state) => state.difficulty);
-  const blocksCount = useGame((state) => state.blocksCount);
-  const blocksSeed = useGame((state) => state.blocksSeed);
-  const toggleAudio = useAudio((state) => state.toggleAudio);
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Restart game
-      if (e.code === "KeyR") {
-        restart();
+  private highScoreRandom = 0;
+  private highScoreCopacabana = 0;
+  private highScoreSantaMonica = 0;
+
+  // Time
+  private startTime = 0;
+  private endTime = 0;
+  // private blocksSeed = 0;
+  // Phases
+  // private phase = 'ready';
+  private phase = 'playing'; // playing | ready
+  private state:any;
+  public event: Event;
+
+  constructor(event: Event) { // 
+    this.mode = getLocalStorage("mode") || "random"; // "random", "tour", "adventure"
+    this.difficulty = parseInt(getLocalStorage("difficulty")) || 1; // 1, 1.25, 1.5, 2
+    this.blocksCount = parseInt(getLocalStorage("blocksCount")) || 10;
+    this.level = getLocalStorage("level") || "copacabana";
+     // High scores
+    this.highScoreRandom = getLocalStorage("highScoreRandom") || 0;
+    this.highScoreCopacabana = getLocalStorage("highScoreCopacabana") || 0;
+    this.highScoreSantaMonica = getLocalStorage("highScoreSantaMonica") || 0;  
+    this.event = event;
+
+
+    event.subscribe().subscribe((res: Message) => {
+      switch(res.type) {
+        case 'status': 
+          // this.state = res.payload;
+       //   this.phase = res.payload.phase;
+          switch(res.payload.phase) {
+            case 'restart':
+              // this.restart();
+              console.log('this.phase:', this.phase);
+              if (this.phase === "playing" || this.phase === "ended") {
+                // return { phase: "ready", blocksSeed: Math.random() };
+                this.event.broadcast('status', {phase: 'ready'});
+              }
+              //  return { phase: "ready", blocksSeed: Math.random() };
+              // this.ball.action({act: 'restart'});
+              break;
+            case 'ready':
+              this.ball.action({act:'ready'});
+              break;
+          }
+          break;
+
       }
+    });
+  }
+  
 
-      // Toggle sound
-      else if (e.code === "KeyM") {
-        toggleAudio();
+  ngOnInit() {
+    
+  }
+
+
+  ngAfterViewInit() {
+
+
+    this.create();
+
+    // document.addEventListener('mousedown', this.handleMouseDown.bind(this), false);
+    document.addEventListener("keydown", this.handleKeyDown.bind(this), false);
+    // document.addEventListener("keydown", this.event.broadcast.bind(null, 'keyboard'), false);
+  }
+
+  // controller part start
+  private handleKeyDown(e: any) {
+    this.event.broadcast('keyboard', {ev: e});
+    // console.log(this.event.get('keyboard'));
+    // const {code} = this.event.get('keyboard');
+    // console.log('code is ' + code);
+    switch(e.code) {
+      case 'KeyR':
+        this.restart(); break;
+      case 'KeyM': // Toggle sound
+        this.toggleAudio(); break;
+      case 'KeyP': // Toggle performance
+        this.showPerformance(); break;
+      case 'ArrowUp': case 'KeyW': // forward
+        this.ball.action({act: 'dir', dir: 'forward'})
+        break;
+      case 'ArrowDown': case 'KeyS':
+        this.ball.action({act: 'dir', dir: 'backward'})
+        break;
+      case 'ArrowLeft': case 'KeyA':
+        this.ball.action({act: 'dir', dir: 'leftward'})
+        break;
+      case 'ArrowRight': case 'KeyD':
+        this.ball.action({act: 'dir', dir: 'rightward'})
+        break;
+      case 'Space': this.ball.action({act: 'jump'}); break;
+
+    }
+    //   { name: 'forward', keys: ['ArrowUp', 'KeyW'] },
+    // { name: 'backward', keys: ['ArrowDown', 'KeyS'] },
+    // { name: 'leftward', keys: ['ArrowLeft', 'KeyA'] },
+    // { name: 'rightward', keys: ['ArrowRight', 'KeyD'] },
+    // { name: 'jump', keys: ['Space'] },
+    // }
+    
+  }
+
+  private toggleAudio() {
+
+  }
+
+  private start() {
+    if (this.phase === "ready") {
+      return { phase: "playing", startTime: Date.now() };
+    } 
+    return {};
+  }
+
+  private restart() {
+    if (this.phase === "playing" || this.phase === "ended") {
+      return { phase: "ready", blocksSeed: Math.random() };
+    }
+    return {};
+  }
+
+  private end() {
+    if (this.phase === "playing") {
+      const endTime = Date.now();
+      const score = endTime - this.startTime;
+
+      if (this.mode === "random") {
+        const highScoreRandom =
+        this.highScoreRandom === 0 || score < this.highScoreRandom
+            ? score
+            : this.highScoreRandom;
+
+        setLocalStorage("highScoreRandom", highScoreRandom);
+        return { phase: "ended", endTime, highScoreRandom };
+      } else if (this.mode === "tour") {
+        if (this.level === "copacabana") {
+          const highScoreCopacabana =
+            this.highScoreCopacabana === 0 ||
+            score < this.highScoreCopacabana
+              ? score
+              : this.highScoreCopacabana;
+
+          setLocalStorage("highScoreCopacabana", highScoreCopacabana);
+          return { phase: "ended", endTime, highScoreCopacabana };
+        } else if (this.level === "santamonica") {
+          const highScoreSantaMonica =
+          this.highScoreSantaMonica === 0 ||
+            score < this.highScoreSantaMonica
+              ? score
+              : this.highScoreSantaMonica;
+
+          setLocalStorage("highScoreSantaMonica", highScoreSantaMonica);
+          return { phase: "ended", endTime, highScoreSantaMonica };
+        }
       }
+    }
 
-      // Toggle performance
-      else if (e.code === "KeyP") {
-        showPerformance();
-      }
-    };
+    return {};
+  }
 
-    document.addEventListener("keydown", handleKeyDown);
 
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [restart, toggleAudio, showPerformance]);
 
-  return (
-    <>
-      <color args={["#00bfff"]} attach="background" />
-      {performance && <Perf position="bottom-left" />}
-      <Physics debug={false}>
-        <Lights />
 
-        {mode === "random" ? (
-          <RandomLevel
-            count={blocksCount}
-            seed={blocksSeed}
-            difficulty={difficulty}
-            // types={[BlockSpinner]}
-          />
-        ) : (
-          <TourLevel difficulty={difficulty} />
-        )}
+  // controller part end
 
-        <Ball />
-        <SoundManager />
-      </Physics>
-    </>
-  );
+  private async create() {
+    await this.rapier.initRapier(0.0, -9.81, 0.0);
+    this.world = new World( this );
+    // this.world = new World<GameComponent>( GameComponent );
+    // this.world = new World( GameComponent );
+    this.rigidBody = new RigidBody(this.rapier);
+    setTimeout(async () => {
+      this.ball = new Ball(this);
+
+      this.levels = new Levels(this);
+       
+      const blocks = await this.levels.RandomLevel();
+
+      blocks.forEach((block: any) => {
+        // if( block instanceof Mesh) {
+        if( block ) {
+          this.world.scene.add(block);
+        }
+      });
+
+      this.ball.reset();
+     
+    }, 1000);
+    
+  }
+
+
+
+
+  // Is the player in the game or in the main menu?
+  public setIsInGame (inOrOut:boolean) {
+    this.isInGame = inOrOut
+  }
+
+  public setIsSettings (inOrOut:boolean) {
+    this.isSettings = inOrOut;
+  }
+
+  public setLocalStorage(k: string, v: string|number) {
+    setLocalStorage(k, v);
+  }
+
+
+  // Show performance
+  private showPerformance(){
+    this.performance =true
+  }
+
+
+   // pixelated: false,
+
+
+    // Mode
+
+   
+  public setMode(gameMode: string){
+    setLocalStorage("mode", gameMode);
+    this.mode = gameMode;
+  }
+
+  // Difficulty 
+  public setDifficulty(dif: number) {
+    setLocalStorage("difficulty", dif);
+    this.difficulty = dif;
+  }
+
+  // Random level generation 
+  public setBlocksCount(count: number){
+    setLocalStorage("blocksCount", count);
+    this.blocksCount = count;
+  };
+
+   // Level (tour) 
+  public setLevel(name: string) {
+    setLocalStorage("level", name);
+    this.level = name;
+  }
+
+
+  
+
+  
 }
+
+

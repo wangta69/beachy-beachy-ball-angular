@@ -14,6 +14,7 @@ export class Rapier {
    */
   constructor() {
 
+    // st hit = this.world.castRay(ray, 10, false); 
   }
 
   public async initRapier(x: number, y: number, z: number) {

@@ -35,6 +35,7 @@ export class Blocks {
     await rigidBody.create(
       {
         rigidBody: {
+          name: 'beach',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0,
         },
@@ -85,6 +86,7 @@ export class Blocks {
     await rigidBody.create(
       {
         rigidBody: {
+          name: 'obstacle',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0,
         },
@@ -155,6 +157,7 @@ export class Blocks {
     await rigidBody.create(
       {
         rigidBody: {
+          name: 'obstacle',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0
         },       
@@ -189,6 +192,7 @@ export class Blocks {
     rigidBody1.create(
       {
         rigidBody: {
+          name: 'obstacle',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0
         },
@@ -273,6 +277,7 @@ export class Blocks {
     await rigidBody.create(
       {
         rigidBody: {
+          name: 'obstacle',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0
         },
@@ -343,6 +348,7 @@ export class Blocks {
     await rigidBody.create(
       {
         rigidBody: {
+          name: 'obstacle',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0
         },
@@ -369,6 +375,7 @@ export class Blocks {
     rigidBody1.create(
       {
         rigidBody: {
+          name: 'obstacle',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0
         },
@@ -460,6 +467,7 @@ export class Blocks {
     await rigidBody.create(
       {
         rigidBody: {
+          name: 'obstacle',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0
         },
@@ -533,6 +541,7 @@ export class Blocks {
     await rigidBody.create(
       {
         rigidBody: {
+          name: 'obstacle',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0
         },
@@ -576,6 +585,7 @@ export class Blocks {
     await rigidBody.create(
       {
         rigidBody: {
+          name: 'obstacle',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0
         },
@@ -648,6 +658,7 @@ export class Blocks {
     await rigidBody.create(
       {
         rigidBody: {
+          name: 'obstacle',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0
         },
@@ -675,6 +686,7 @@ export class Blocks {
     rigidBody1.create(
       {
         rigidBody: {
+          name: 'obstacle',
           type:'kinematicPosition', 
           restitution:0.2, friction: 0
         },
@@ -772,6 +784,7 @@ export class Blocks {
     await rigidBody.create(
       {
         rigidBody: {
+          name: 'star',
           type:'fixed', 
           colliders: 'trimesh', 
           // position: {x:0+position[0], y:1.05+position[1], z:0+position[2]}, 

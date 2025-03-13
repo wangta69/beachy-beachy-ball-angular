@@ -67,20 +67,20 @@ export class Levels {
   }
   
   public async RandomLevel(
-    count = 1,
-    // types = [
-    //   this.blocks.BlockSpinner,
-    //   this.blocks.BlockDoubleSpinner,
-    //   this.blocks.BlockSlidingWall,
-    //   this.blocks.BlockDoubleSlidingWall,
-    //   this.blocks.BlockLimbo,
-    //   this.blocks.BlockDoubleLimbo,
-    //   // this.blocks.BlockPlatformLimbo,
-    //   // this.blocks.BlockRamp
-    // ],
+    count = 5,
     types = [
-      'BlockRamp',
+      'BlockSpinner',
+      'BlockDoubleSpinner',
+      'BlockSlidingWall',
+      'BlockDoubleSlidingWall',
+      'BlockLimbo',
+      'BlockDoubleLimbo',
+      // 'BlockPlatformLimbo',
+      // 'BlockRamp'
     ],
+    // types = [
+    //   'BlockRamp',
+    // ],
 /*
     types = [
       'BlockSpinner',

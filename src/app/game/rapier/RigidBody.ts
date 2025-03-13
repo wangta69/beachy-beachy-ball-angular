@@ -1,9 +1,3 @@
-// Beachy Beachy Ball
-// Copyright (c) 2023 Michael Kolesidis <michael.kolesidis@gmail.com>
-// Licensed under the GNU Affero General Public License v3.0.
-// https://www.gnu.org/licenses/gpl-3.0.html
-
-
 import * as THREE from "three";
 import RAPIER from '@dimforge/rapier3d-compat';
 import {Rapier} from '../rapier/Rapier';
@@ -22,11 +16,13 @@ export class RigidBody {
   public rigidBody!: RAPIER.RigidBody;
   // public useFrame = () => {};
   public useFrame!: {(argument:UseFrame): void;};
+  private eventQueue: RAPIER.EventQueue;
   constructor(rapier: Rapier) {
     this.rapier = rapier;
+
+    this.eventQueue = new RAPIER.EventQueue(true);
+    // this.rapier.world.step(this.eventQueue);
   }
-
-
 
   /**
    * 
@@ -34,11 +30,18 @@ export class RigidBody {
    */
   public async create(params: any) {
     this.object3d = params.object3d;
+
+  
+    if(params.rigidBody.onCollisionEnter) {
+      this.onCollisionEnter(params.rigidBody.onCollisionEnter);
+    }
     const option = params.rigidBody;
 
     const childColliderProps = createColliderPropsFromChildren({object: this.object3d, options: option, ignoreMeshColliders: true})
     const desc = rigidBodyDescFromOptions(option);
     const props = childColliderProps[0];
+
+
 
 
     const args = props.args;
@@ -65,8 +68,14 @@ export class RigidBody {
         break;
     }
 
-    props.restitution ? colliderDesc.setRestitution(props.restitution): null;
-    props.friction ? colliderDesc.setFriction(props.friction): null;
+
+    
+   
+    
+    
+    
+    props.restitution ? colliderDesc.setRestitution(props.restitution): 1;
+    props.friction ? colliderDesc.setFriction(props.friction): 1;
     // props.rotation ? colliderDesc.setRotation({  x: props.rotation[0], y: props.rotation[1], z: props.rotation[2], w: 1.0 }): null;
     // if(props.rotation) {
     //   const rotaionX:number = typeof props.rotation[0] === 'number' ? props.rotation[0] : 0;
@@ -125,22 +134,86 @@ export class RigidBody {
 
 
 
-    this.rapier.world.createCollider(colliderDesc, this.rigidBody);
+    const collider = this.rapier.world.createCollider(colliderDesc, this.rigidBody);
+    collider.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)// CONTACT_FORCE_EVENTS
     // this.rapier.dynamicBodies.push([this.object3d, this.rigidBody]);
     this.rapier.dynamicBodies.push(this);
 
+
+    // const events = new RAPIER.Map
+
+    // events.set(this.rigidBody.handle, {
+    //   onCollisionEnter: this.onCollisionEnter1
+    //   // onCollisionEnter,
+    //   // onCollisionExit,
+    //   // onIntersectionEnter,
+    //   // onIntersectionExit,
+    //   // onContactForce
+    // });
+
+
     return this.rigidBody;
+  }
+
+  private onCollisionEnter1() {
+    console.log('onCollisionEnter111111111111111');
   }
 
   public update(clock: any) {
     const time = clock.getElapsedTime()
     if(this.useFrame) {
       this.useFrame({time});
+
+      
     }
+
+  //   this.rapier.world.step(this.eventQueue);
+  //   this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
+  //     /* Handle the collision event. */
+  //     // console.log(handle1);
+  //     this.rapier.world.narrowPhase.contactPair(handle1, handle2, (manifold, flipped) => {
+  //         console.log(manifold);
+  //     });
+  // });
+
+   
+    // const eventQueue = new RAPIER.EventQueue(true);
+    // this.rapier.world.step(eventQueue);
+    // console.log('+');
+    // eventQueue.drainCollisionEvents((handle1, handle2, started) => {
+    //     /* Handle the collision event. */
+    //     console.log('-');
+    //     this.rapier.world.narrowPhase.contactPair(handle1, handle2, (manifold, flipped) => {
+    //         console.log(manifold.normal());
+    //     });
+    // });
+
+/*
+    this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
+        //  Handle the collision event. 
+        console.log('-'); 
+        this.rapier.world.narrowPhase.contactPair(handle1, handle2, (manifold, flipped) => {
+            console.log(manifold.normal());
+        });
+    });
+
+    */
+
+        // debugDrawer.drawLines();
+        // renderer.render(stage);
+        // debugDrawer.clear();
+  
+  }
+
+  private onCollisionEnter(callback:(arg:any)=>{}) {
+    console.log('onCollisionEnter.................');
+    console.log('callback:', callback);
     
-    // console.log(clock);
-    // console.log(this.useFrame);
-    // console.log(this.useFrame);
+    const eventQueue = new RAPIER.EventQueue(true);
+    this.rapier.world.step(eventQueue)
+    eventQueue.drainContactForceEvents((event) => {
+      console.log('contact force event - totalForce', event.totalForce())
+    })
   }
 }
 
