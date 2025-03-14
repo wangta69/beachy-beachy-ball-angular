@@ -2,7 +2,7 @@ import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
-import {MainComponent} from './Main';
+import {MainComponent} from './interface/MainMenu';
 import {Game} from './Game';
 
 @Component({

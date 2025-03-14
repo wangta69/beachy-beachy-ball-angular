@@ -7,7 +7,7 @@ import { Canvas } from "@react-three/fiber";
 // import { EffectComposer, Pixelation } from "@react-three/postprocessing";
 import useGame from "./stores/useGame.js";
 import Game from "./Game.jsx";
-import Interface from "./interface/Interface.ori.js";
+import Interface from "./interface/Interface.js";
 import Controls from "./utils/Controls";
 import MainMenu from "./interface/MainMenu.jsx";
 

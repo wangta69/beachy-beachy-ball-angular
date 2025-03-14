@@ -26,6 +26,10 @@ export class AppComponent implements OnInit{
       .addSvgIcon('logo_white', this.sanitizer.bypassSecurityTrustResourceUrl('/assets/logo_white.svg'))
       .addSvgIcon('mm_white', this.sanitizer.bypassSecurityTrustResourceUrl('/assets/mm_white.svg'))
       .addSvgIcon('wordmark', this.sanitizer.bypassSecurityTrustResourceUrl('/assets/wordmark.svg'))
+      .addSvgIcon('icon_menu', this.sanitizer.bypassSecurityTrustResourceUrl('/icons/menu.svg'))
+      .addSvgIcon('icon_sound_off', this.sanitizer.bypassSecurityTrustResourceUrl('/icons/sound_off.svg'))
+      .addSvgIcon('icon_sound_on', this.sanitizer.bypassSecurityTrustResourceUrl('/icons/sound_on.svg'))
+
   }
   
 }

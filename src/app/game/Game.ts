@@ -9,8 +9,10 @@ import {RigidBody} from './rapier/RigidBody';
 import {Ball} from './objects/Ball';
 // import {BlockEmpty} from './level/components/Blocks';
 import {Levels} from './level/Level';
-import { getLocalStorage, setLocalStorage } from './stores/utils';
+// import { getLocalStorage, setLocalStorage } from './stores/utils';
+import {Settings} from './interface/types';
 import {Event, Message} from './services/event.service';
+import {Storage} from './services/storage.service';
 // import { Observable, filter, map } from 'rxjs';
 @Component({
   standalone: true,
@@ -21,6 +23,16 @@ import {Event, Message} from './services/event.service';
   styleUrls: ['./game.scss']
 })
 export class Game implements OnInit, AfterViewInit{
+
+
+  private game = {
+    isInGame: false,
+    isSettings: false,
+    mode: 'random',
+    difficulty: 1,
+    blocksCount: 10,
+    level: 'copacabana'
+  }
 
   public world!:World;
   public ball!:Ball;
@@ -38,9 +50,24 @@ export class Game implements OnInit, AfterViewInit{
   public level = 'copacabana';
 
 
-  private highScoreRandom = 0;
-  private highScoreCopacabana = 0;
-  private highScoreSantaMonica = 0;
+  public settings: Settings = {
+    isInGame: false,
+    isSettings: false,
+    mode: 'random',
+    difficulty: 1,
+    blocksCount: 10,
+    level: 'copacabana'
+  }
+
+  public statics:any = {
+    random: {highscore: 0},
+    copacabana: {highscore: 0},
+    santamonica: {highscore: 0},
+  }
+
+  // private highScoreRandom = 0;
+  // private highScoreCopacabana = 0;
+  // private highScoreSantaMonica = 0;
 
   // Time
   private startTime = 0;
@@ -51,16 +78,24 @@ export class Game implements OnInit, AfterViewInit{
   private phase = 'playing'; // playing | ready
   private state:any;
   public event: Event;
+  private storage: Storage;
 
-  constructor(event: Event) { // 
-    this.mode = getLocalStorage("mode") || "random"; // "random", "tour", "adventure"
-    this.difficulty = parseInt(getLocalStorage("difficulty")) || 1; // 1, 1.25, 1.5, 2
-    this.blocksCount = parseInt(getLocalStorage("blocksCount")) || 10;
-    this.level = getLocalStorage("level") || "copacabana";
+  constructor(event: Event, storage: Storage) { // 
+    
+    this.storage = storage;
+    this.settings = storage.get('beachyball.settings');
+
+    const statics = storage.get('beachyball.statics');
+    statics ? this.statics = statics : null; 
+
+    // this.mode = getLocalStorage("mode") || "random"; // "random", "tour", "adventure"
+    // this.difficulty = parseInt(getLocalStorage("difficulty")) || 1; // 1, 1.25, 1.5, 2
+    // this.blocksCount = parseInt(getLocalStorage("blocksCount")) || 10;
+    // this.level = getLocalStorage("level") || "copacabana";
      // High scores
-    this.highScoreRandom = getLocalStorage("highScoreRandom") || 0;
-    this.highScoreCopacabana = getLocalStorage("highScoreCopacabana") || 0;
-    this.highScoreSantaMonica = getLocalStorage("highScoreSantaMonica") || 0;  
+    // this.highScoreRandom = getLocalStorage("highScoreRandom") || 0;
+    // this.highScoreCopacabana = getLocalStorage("highScoreCopacabana") || 0;
+    // this.highScoreSantaMonica = getLocalStorage("highScoreSantaMonica") || 0;  
     this.event = event;
 
 
@@ -162,43 +197,49 @@ export class Game implements OnInit, AfterViewInit{
     if (this.phase === "playing") {
       const endTime = Date.now();
       const score = endTime - this.startTime;
+      const level = this.mode === 'random' ? 'random' : this.level;
 
-      if (this.mode === "random") {
-        const highScoreRandom =
-        this.highScoreRandom === 0 || score < this.highScoreRandom
-            ? score
-            : this.highScoreRandom;
+      // if (this.mode === "random") {
+      //   this.statics.random.highscore = score < this.statics.random.highscore
+      //       ? score
+      //       : this.statics.random.highscore;
 
-        setLocalStorage("highScoreRandom", highScoreRandom);
-        this.event.broadcast('status', {phase: 'ended', endTime, highScoreRandom });
-      } else if (this.mode === "tour") {
-        if (this.level === "copacabana") {
-          const highScoreCopacabana =
-            this.highScoreCopacabana === 0 ||
-            score < this.highScoreCopacabana
-              ? score
-              : this.highScoreCopacabana;
+      //   // setLocalStorage("highScoreRandom", highScoreRandom);
+      //   this.event.broadcast('status', {phase: 'ended', endTime, this.statics.random.highscore });
+      // } else if (this.mode === "tour") {
+      //   if (this.level === "copacabana") {
+      //     this.statics.copacabana.highscore = score < this.statics.copacabana.highscore
+      //       ? score
+      //       : this.statics.copacabana.highscore;
 
-          setLocalStorage("highScoreCopacabana", highScoreCopacabana);
-          this.event.broadcast('status', {phase: 'ended', endTime, highScoreCopacabana });
-        } else if (this.level === "santamonica") {
-          const highScoreSantaMonica =
-          this.highScoreSantaMonica === 0 ||
-            score < this.highScoreSantaMonica
-              ? score
-              : this.highScoreSantaMonica;
+      //     // setLocalStorage("highScoreCopacabana", highScoreCopacabana);
+      //     this.event.broadcast('status', {phase: 'ended', endTime, highScoreCopacabana });
+      //   } else if (this.level === "santamonica") {
+      //     const highScoreSantaMonica =
+      //     this.highScoreSantaMonica === 0 ||
+      //       score < this.highScoreSantaMonica
+      //         ? score
+      //         : this.highScoreSantaMonica;
 
-          setLocalStorage("highScoreSantaMonica", highScoreSantaMonica);
-          // return { phase: "ended", endTime, highScoreSantaMonica };
-          this.event.broadcast('status', {phase: 'ended', endTime, highScoreSantaMonica});
-        }
-      }
+      //     // setLocalStorage("highScoreSantaMonica", highScoreSantaMonica);
+      //     // return { phase: "ended", endTime, highScoreSantaMonica };
+      //     this.event.broadcast('status', {phase: 'ended', endTime, highScoreSantaMonica});
+      //   }
+      // }
+      this.statics[level].highscore = score < this.statics[level].highscore
+        ? score
+        : this.statics[level].highscore;
+
+      this.event.broadcast('status', {phase: 'ended', endTime, level, statics: this.statics.random.highscore });
+      this.store();
     }
-
+    
   }
 
 
-
+  private store() {
+    this.storage.set('beachyball.statics', this.statics);
+  }
 
   // controller part end
 
@@ -231,18 +272,6 @@ export class Game implements OnInit, AfterViewInit{
 
 
 
-  // Is the player in the game or in the main menu?
-  public setIsInGame (inOrOut:boolean) {
-    this.isInGame = inOrOut
-  }
-
-  public setIsSettings (inOrOut:boolean) {
-    this.isSettings = inOrOut;
-  }
-
-  public setLocalStorage(k: string, v: string|number) {
-    setLocalStorage(k, v);
-  }
 
 
   // Show performance
@@ -251,39 +280,6 @@ export class Game implements OnInit, AfterViewInit{
   }
 
 
-   // pixelated: false,
-
-
-    // Mode
-
-   
-  public setMode(gameMode: string){
-    setLocalStorage("mode", gameMode);
-    this.mode = gameMode;
-  }
-
-  // Difficulty 
-  public setDifficulty(dif: number) {
-    setLocalStorage("difficulty", dif);
-    this.difficulty = dif;
-  }
-
-  // Random level generation 
-  public setBlocksCount(count: number){
-    setLocalStorage("blocksCount", count);
-    this.blocksCount = count;
-  };
-
-   // Level (tour) 
-  public setLevel(name: string) {
-    setLocalStorage("level", name);
-    this.level = name;
-  }
-
-
-  
-
-  
 }
 
 
