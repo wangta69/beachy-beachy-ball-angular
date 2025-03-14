@@ -1,0 +1,4 @@
+<app-main (started)="gameStar($event)" *ngIf="!isPlaying">
+  <div> Child Component Details </div>
+</app-main>
+<app-game *ngIf="isPlaying"></app-game>

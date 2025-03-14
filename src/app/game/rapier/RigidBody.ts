@@ -17,6 +17,9 @@ export class RigidBody {
   // public useFrame = () => {};
   public useFrame!: {(argument:UseFrame): void;};
   private eventQueue: RAPIER.EventQueue;
+
+  private collideCallback!: () => void;
+  private onCollisionEnter!: (args?:any) => void;
   constructor(rapier: Rapier) {
     this.rapier = rapier;
 
@@ -33,10 +36,11 @@ export class RigidBody {
 
   
     if(params.rigidBody.onCollisionEnter) {
-      this.onCollisionEnter(params.rigidBody.onCollisionEnter);
+      this.onCollisionEnter = params.rigidBody.onCollisionEnter;
     }
     const option = params.rigidBody;
 
+    
     const childColliderProps = createColliderPropsFromChildren({object: this.object3d, options: option, ignoreMeshColliders: true})
     const desc = rigidBodyDescFromOptions(option);
     const props = childColliderProps[0];
@@ -123,6 +127,7 @@ export class RigidBody {
     
 
     this.rigidBody = this.rapier.world.createRigidBody(rigidBodyDesc);
+    option.name ? this.rigidBody.userData = {name: option.name}: null;
     // this.rigidBody.setRotation({  x: 0.0, y: tween.rotate, z: 0.0, w: 1.0 }, true)
     if(props.rotation) {
       const rotaionX:number = typeof props.rotation[0] === 'number' ? props.rotation[0] : 0;
@@ -135,6 +140,7 @@ export class RigidBody {
 
 
     const collider = this.rapier.world.createCollider(colliderDesc, this.rigidBody);
+    // option.name ? collider.userData = {name: option.name} | null;
     collider.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)// CONTACT_FORCE_EVENTS
     // this.rapier.dynamicBodies.push([this.object3d, this.rigidBody]);
     this.rapier.dynamicBodies.push(this);
@@ -155,65 +161,36 @@ export class RigidBody {
     return this.rigidBody;
   }
 
-  private onCollisionEnter1() {
-    console.log('onCollisionEnter111111111111111');
-  }
+  // private onCollisionEnter1() {
+  //   console.log('onCollisionEnter111111111111111');
+  // }
 
   public update(clock: any) {
-    const time = clock.getElapsedTime()
+    const time = clock.getElapsedTime();
+    
+    // if((this.rigidBody.userData as any).name === 'ball'){
+    if(typeof this.onCollisionEnter === 'function') {
+      // https://github.com/8Observer8/pong-2d-noobtuts-port-rapier2dcompat-webgl-js-the-raw-is-undefined/blob/main/src/index.js
+      this.rapier.world.step(this.eventQueue);
+      this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
+        /* Handle the collision event. */
+        // console.log(handle1);
+        // console.log('---------------');
+        this.rapier.world.narrowPhase.contactPair(handle1, handle2, (manifold, flipped) => {
+          // console.log('handle1:', handle1);
+          // console.log('handle2:', handle2);
+          // console.log('manifold:', manifold.normal());
+          // console.log('flipped:', flipped);
+          // if(typeof this.onCollisionEnter === 'function') {
+            this.onCollisionEnter();
+          // }
+        });
+      });
+      // console.log((this.rigidBody.userData as any).name);
+    }
     if(this.useFrame) {
       this.useFrame({time});
-
-      
     }
-
-  //   this.rapier.world.step(this.eventQueue);
-  //   this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-  //     /* Handle the collision event. */
-  //     // console.log(handle1);
-  //     this.rapier.world.narrowPhase.contactPair(handle1, handle2, (manifold, flipped) => {
-  //         console.log(manifold);
-  //     });
-  // });
-
-   
-    // const eventQueue = new RAPIER.EventQueue(true);
-    // this.rapier.world.step(eventQueue);
-    // console.log('+');
-    // eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-    //     /* Handle the collision event. */
-    //     console.log('-');
-    //     this.rapier.world.narrowPhase.contactPair(handle1, handle2, (manifold, flipped) => {
-    //         console.log(manifold.normal());
-    //     });
-    // });
-
-/*
-    this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-        //  Handle the collision event. 
-        console.log('-'); 
-        this.rapier.world.narrowPhase.contactPair(handle1, handle2, (manifold, flipped) => {
-            console.log(manifold.normal());
-        });
-    });
-
-    */
-
-        // debugDrawer.drawLines();
-        // renderer.render(stage);
-        // debugDrawer.clear();
-  
-  }
-
-  private onCollisionEnter(callback:(arg:any)=>{}) {
-    console.log('onCollisionEnter.................');
-    console.log('callback:', callback);
-    
-    const eventQueue = new RAPIER.EventQueue(true);
-    this.rapier.world.step(eventQueue)
-    eventQueue.drainContactForceEvents((event) => {
-      console.log('contact force event - totalForce', event.totalForce())
-    })
   }
 }
 

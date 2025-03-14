@@ -10,10 +10,11 @@ import {Ball} from './objects/Ball';
 // import {BlockEmpty} from './level/components/Blocks';
 import {Levels} from './level/Level';
 import { getLocalStorage, setLocalStorage } from './stores/utils';
-import {Event, Message} from './utils/Event';
+import {Event, Message} from './services/event.service';
 // import { Observable, filter, map } from 'rxjs';
 @Component({
-  selector: 'app-root',
+  standalone: true,
+  selector: 'app-game',
   schemas: [NO_ERRORS_SCHEMA],
   imports: [CommonModule, MatIconModule],
   templateUrl: './game.html',
@@ -71,7 +72,6 @@ export class Game implements OnInit, AfterViewInit{
           switch(res.payload.phase) {
             case 'restart':
               // this.restart();
-              console.log('this.phase:', this.phase);
               if (this.phase === "playing" || this.phase === "ended") {
                 // return { phase: "ready", blocksSeed: Math.random() };
                 this.event.broadcast('status', {phase: 'ready'});
@@ -81,6 +81,10 @@ export class Game implements OnInit, AfterViewInit{
               break;
             case 'ready':
               this.ball.action({act:'ready'});
+              break;
+            case 'end':
+              this.end();
+              // this.ball.action({act:'ready'});
               break;
           }
           break;
@@ -133,12 +137,6 @@ export class Game implements OnInit, AfterViewInit{
       case 'Space': this.ball.action({act: 'jump'}); break;
 
     }
-    //   { name: 'forward', keys: ['ArrowUp', 'KeyW'] },
-    // { name: 'backward', keys: ['ArrowDown', 'KeyS'] },
-    // { name: 'leftward', keys: ['ArrowLeft', 'KeyA'] },
-    // { name: 'rightward', keys: ['ArrowRight', 'KeyD'] },
-    // { name: 'jump', keys: ['Space'] },
-    // }
     
   }
 
@@ -172,7 +170,7 @@ export class Game implements OnInit, AfterViewInit{
             : this.highScoreRandom;
 
         setLocalStorage("highScoreRandom", highScoreRandom);
-        return { phase: "ended", endTime, highScoreRandom };
+        this.event.broadcast('status', {phase: 'ended', endTime, highScoreRandom });
       } else if (this.mode === "tour") {
         if (this.level === "copacabana") {
           const highScoreCopacabana =
@@ -182,7 +180,7 @@ export class Game implements OnInit, AfterViewInit{
               : this.highScoreCopacabana;
 
           setLocalStorage("highScoreCopacabana", highScoreCopacabana);
-          return { phase: "ended", endTime, highScoreCopacabana };
+          this.event.broadcast('status', {phase: 'ended', endTime, highScoreCopacabana });
         } else if (this.level === "santamonica") {
           const highScoreSantaMonica =
           this.highScoreSantaMonica === 0 ||
@@ -191,12 +189,12 @@ export class Game implements OnInit, AfterViewInit{
               : this.highScoreSantaMonica;
 
           setLocalStorage("highScoreSantaMonica", highScoreSantaMonica);
-          return { phase: "ended", endTime, highScoreSantaMonica };
+          // return { phase: "ended", endTime, highScoreSantaMonica };
+          this.event.broadcast('status', {phase: 'ended', endTime, highScoreSantaMonica});
         }
       }
     }
 
-    return {};
   }
 
 

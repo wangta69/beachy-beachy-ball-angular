@@ -789,7 +789,8 @@ export class Blocks {
           colliders: 'trimesh', 
           // position: {x:0+position[0], y:1.05+position[1], z:0+position[2]}, 
           rotation:{x:0, y:Math.PI / 2, z:0}, 
-          restitution:0.2, friction: 0
+          restitution:0.2, friction: 0,
+          onCollisionEnter:this.onHit
         },
         object3d: star,
       }
@@ -855,6 +856,8 @@ export class Blocks {
     // star.scale.set(0.012);
     // group.add(star);
     // return group;
+
+   
     /*
     const { end } = useGame();
 
@@ -886,6 +889,10 @@ export class Blocks {
       </group>
     );
     */
+  }
+
+  private onHit() {
+    this.game.event.broadcast('status', {phase: 'end'});
   }
 
 }

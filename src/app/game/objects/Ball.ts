@@ -189,11 +189,7 @@ export class Ball {
   //   hitSound.play()
   }
 
-  // function onHit() {
-  //   hitSound.currentTime = 0
-  //   hitSound.volume = Math.random() * 0.1
-  //   hitSound.play()
-  // }
+
 /*
   return (
     <RigidBody
