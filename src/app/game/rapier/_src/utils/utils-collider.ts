@@ -8,24 +8,20 @@ import {
 // import { useEffect, useMemo } from "react";
 import { BufferGeometry, Euler, Mesh, Object3D, Vector3 } from "three";
 import { mergeVertices } from './BufferGeometryUtils';
-import { ColliderProps, RigidBodyProps } from "../index";
-/*
+import { ColliderProps, RigidBodyProps } from "../_index";
 import {
   ColliderState,
   ColliderStateMap,
   EventMap
 } from "../components/Physics";
- */
 import {
   _matrix4,
   _position,
   _rotation,
   _scale,
   _vector3
-} from './shared-objects';
-
+} from "./shared-objects";
 import { ColliderShape, RigidBodyAutoCollider } from "../types";
- /*
 import { scaleVertices, vectorToTuple } from "./utils";
 
 export const scaleColliderArgs = (
@@ -119,7 +115,7 @@ const setColliderMassOptions = (
     );
   }
 };
-*/
+
 // const mutableColliderOptions: MutableColliderOptions = {
 const mutableColliderOptions: any = {
   /*
@@ -157,7 +153,7 @@ const mutableColliderOptions: any = {
   rotation: () => {},
   scale: () => {}
 };
-/*
+
 const mutableColliderOptionKeys = Object.keys(
   mutableColliderOptions
 ) as (keyof ColliderProps)[];
@@ -239,7 +235,7 @@ export const useUpdateColliderOptions = (
   //   setColliderOptions(collider, props, states);
   // }, [...mutablePropsAsFlatArray, getCollider]);
 };
-*/
+
 const isChildOfMeshCollider = (child: Mesh) => {
   let flag = false;
   child.traverseAncestors((a) => {
@@ -247,7 +243,7 @@ const isChildOfMeshCollider = (child: Mesh) => {
   });
   return flag;
 };
-/*
+
 export const createColliderState = (
   collider: Collider,
   object: Object3D,
@@ -259,7 +255,7 @@ export const createColliderState = (
     object
   };
 };
-*/
+
 const autoColliderMap: Record<string, string> = {
   cuboid: "cuboid",
   ball: "ball",
@@ -405,7 +401,6 @@ export const getColliderArgsFromGeometry = (
   return { args: [], offset: new Vector3() };
 };
 
-/*
 export const getActiveCollisionEventsFromProps = (props?: ColliderProps) => {
   return {
     collision: !!(
@@ -422,9 +417,9 @@ export const useColliderEvents = (
   getCollider: () => Collider,
   props: ColliderProps,
   events: EventMap,
-  
-  // The RigidBody can pass down active events to the collider without attaching the event listners
-
+  /**
+   * The RigidBody can pass down active events to the collider without attaching the event listners
+   */
   activeEvents: {
     collision?: boolean;
     contactForce?: boolean;
@@ -437,9 +432,56 @@ export const useColliderEvents = (
     onIntersectionExit,
     onContactForce
   } = props;
+/*
+  useEffect(() => {
+    const collider = getCollider();
+
+    if (collider) {
+      const {
+        collision: collisionEventsActive,
+        contactForce: contactForceEventsActive
+      } = getActiveCollisionEventsFromProps(props);
+
+      const hasCollisionEvent = collisionEventsActive || activeEvents.collision;
+      const hasContactForceEvent =
+        contactForceEventsActive || activeEvents.contactForce;
+
+      if (hasCollisionEvent && hasContactForceEvent) {
+        collider.setActiveEvents(
+          ActiveEvents.COLLISION_EVENTS | ActiveEvents.CONTACT_FORCE_EVENTS
+        );
+      } else if (hasCollisionEvent) {
+        collider.setActiveEvents(ActiveEvents.COLLISION_EVENTS);
+      } else if (hasContactForceEvent) {
+        collider.setActiveEvents(ActiveEvents.CONTACT_FORCE_EVENTS);
+      }
+
+      events.set(collider.handle, {
+        onCollisionEnter,
+        onCollisionExit,
+        onIntersectionEnter,
+        onIntersectionExit,
+        onContactForce
+      });
+    }
+
+    return () => {
+      if (collider) {
+        events.delete(collider.handle);
+      }
+    };
+  }, [
+    onCollisionEnter,
+    onCollisionExit,
+    onIntersectionEnter,
+    onIntersectionExit,
+    onContactForce,
+    activeEvents
+  ]);
+  */
 };
 
-*/
+// export const cleanRigidBodyPropsForCollider = (props: RigidBodyProps = {}) => {
 export const cleanRigidBodyPropsForCollider = (props: any = {}) => {
   const {
     mass,

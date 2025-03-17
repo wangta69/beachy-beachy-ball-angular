@@ -4,17 +4,19 @@ import {
   Vector3 as RapierVector3
 } from "@dimforge/rapier3d-compat";
 import { Euler, Quaternion, Vector3 } from "three";
-// import { _euler, _quaternion, _vector3 } from "./shared-objects";
+import { _euler, _quaternion, _vector3 } from "./shared-objects";
 import { RigidBodyTypeString, Vector3Tuple } from "../types";
 import * as THREE from "three";
+// import {
+//   Vector3 as Vector3Like,
+//   Quaternion as QuaternionLike
+// } from "@react-three/fiber";
 
-/*
 export const vectorArrayToVector3 = (arr: Vector3Tuple) => {
   const [x, y, z] = arr;
   return new Vector3(x, y, z);
 };
-*/
-/*
+
 export const vector3ToQuaternion = (v: Vector3) => {
   return _quaternion.setFromEuler(_euler.setFromVector3(v));
 };
@@ -28,7 +30,7 @@ export const rapierQuaternionToQuaternion = ({
   z,
   w
 }: RapierQuaternion) => _quaternion.set(x, y, z, w);
-*/
+
 // export const vector3ToRapierVector = (v: Vector3Like) => {
 export const vector3ToRapierVector = (v: THREE.Vector3Like) => {
   if (Array.isArray(v)) {

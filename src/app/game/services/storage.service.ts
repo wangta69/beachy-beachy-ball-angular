@@ -25,4 +25,11 @@ export class Storage {
     }
     return null;
   }
+
+  public removeItem(key: string) {
+    window.localStorage.removeItem('key');
+  }
+  public clear() {
+    window.localStorage.clear();
+  }
 }

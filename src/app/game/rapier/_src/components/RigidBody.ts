@@ -1,11 +1,20 @@
-/*
+// import React, {
+//   createContext,
+//   forwardRef,
+//   memo,
+//   ReactNode,
+//   Ref,
+//   RefObject,
+//   useContext,
+//   useEffect,
+//   useMemo,
+//   useRef
+// } from "react";
 import { Object3D } from "three";
 import { useChildColliderProps, useRapier } from "../hooks/hooks";
 import { useForwardedRef } from "../hooks/use-forwarded-ref";
 import { useImperativeInstance } from "../hooks/use-imperative-instance";
-*/
 import { RapierRigidBody, RigidBodyOptions } from "../types";
-/*
 import {
   createRigidBodyState,
   immutableRigidBodyOptions,
@@ -26,7 +35,7 @@ import { AnyCollider } from "./AnyCollider";
 export const RigidBodyContext = undefined;
 
 export const useRigidBodyContext = () => {return {options: {}}};
-*/
+
 export interface RigidBodyProps extends RigidBodyOptions {
   // children?: ReactNode;
   // ref?: Ref<RapierRigidBody>;
@@ -52,11 +61,10 @@ export const RigidBody = (props: RigidBodyProps) => {
     scale,
 
     quaternion,
-    // transformState,
+    transformState,
     ...objectProps
   } = props;
-}
-/*
+
   const objectRef = null; //useRef<Object3D>(null);
   const rigidBodyRef = useForwardedRef(ref);
   const { world, rigidBodyStates, physicsOptions, rigidBodyEvents } =
@@ -99,6 +107,26 @@ export const RigidBody = (props: RigidBodyProps) => {
     immutablePropArray
   );
 
+  // Only provide a object state after the ref has been set
+  /*
+  useEffect(() => {
+    const rigidBody = getRigidBody();
+
+    const state = createRigidBodyState({
+      rigidBody,
+      object: objectRef.current!
+    });
+
+    rigidBodyStates.set(
+      rigidBody.handle,
+      props.transformState ? props.transformState(state) : state
+    );
+
+    return () => {
+      rigidBodyStates.delete(rigidBody.handle);
+    };
+  }, [getRigidBody]);
+  */
 
   useUpdateRigidBodyOptions(getRigidBody, mergedOptions, rigidBodyStates);
   useRigidBodyEvents(getRigidBody, mergedOptions, rigidBodyEvents);
@@ -112,7 +140,26 @@ export const RigidBody = (props: RigidBodyProps) => {
   };
 
   return null;
+  /*
+  return (
+    <RigidBodyContext.Provider value={contextValue}>
+      <object3D
+        ref={objectRef}
+        {...objectProps}
+        position={position}
+        rotation={rotation}
+        quaternion={quaternion}
+        scale={scale}
+      >
+        {children}
+
+        {childColliderProps.map((colliderProps, index) => (
+          <AnyCollider key={index} {...colliderProps} />
+        ))}
+      </object3D>
+    </RigidBodyContext.Provider>
+  );*/
 };
 
-*/
+// RigidBody.displayName = "RigidBody";
 

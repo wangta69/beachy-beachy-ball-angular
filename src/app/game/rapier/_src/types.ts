@@ -13,8 +13,8 @@ import {
 import { Rotation, Vector } from "@dimforge/rapier3d-compat/math";
 // import { Quaternion, ThreeElements, Vector3 } from "@react-three/fiber";
 import { Object3D } from "three";
-import { ColliderProps } from "./index";
-// import { RigidBodyState } from "./components/Physics";
+import { ColliderProps } from "./_index";
+import { RigidBodyState } from "./components/Physics";
 
 export { CoefficientCombineRule as CoefficientCombineRule } from "@dimforge/rapier3d-compat";
 export { RapierCollider, RapierRigidBody };
@@ -495,7 +495,7 @@ export interface RigidBodyOptions extends Omit<ColliderProps, "ref"> {
    * Transform the RigidBodyState
    * @internal Do not use. Used internally by the InstancedRigidBodies to alter the RigidBody State
    */
-  // transformState?: (state: RigidBodyState) => RigidBodyState;
+  transformState?: (state: RigidBodyState) => RigidBodyState;
 }
 
 // Joints

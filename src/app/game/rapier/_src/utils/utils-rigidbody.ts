@@ -1,10 +1,7 @@
 import { RigidBody, RigidBodyDesc } from "@dimforge/rapier3d-compat";
 // import { useEffect, useMemo } from "react";
 import { Matrix4, Object3D, Vector3 } from "three";
-
-import { RigidBodyProps } from "../index";
-// import { Boolean3Tuple, RigidBodyProps, Vector3Tuple } from "../index";
-/*
+import { Boolean3Tuple, RigidBodyProps, Vector3Tuple } from "../_index";
 import {
   EventMap,
   RigidBodyState,
@@ -17,9 +14,7 @@ import {
   _scale,
   _vector3
 } from "./shared-objects";
- */
-// import { rigidBodyTypeFromString, vectorToTuple } from "./utils";
-import { rigidBodyTypeFromString } from "./utils";
+import { rigidBodyTypeFromString, vectorToTuple } from "./utils";
 
 export const rigidBodyDescFromOptions = (options: RigidBodyProps) => {
   const type = rigidBodyTypeFromString(options?.type || "dynamic");
@@ -32,7 +27,6 @@ export const rigidBodyDescFromOptions = (options: RigidBodyProps) => {
   return desc;
 };
 
-/*
 interface CreateRigidBodyStateOptions {
   object: Object3D;
   rigidBody: RigidBody;
@@ -41,8 +35,7 @@ interface CreateRigidBodyStateOptions {
   worldScale?: Vector3;
   meshType?: RigidBodyState["meshType"];
 }
-*/
-/*
+
 export const createRigidBodyState = ({
   rigidBody,
   object,
@@ -73,8 +66,7 @@ export const createRigidBodyState = ({
 };
 
 type ImmutableRigidBodyOptions = (keyof RigidBodyProps)[];
-*/
-/*
+
 export const immutableRigidBodyOptions: ImmutableRigidBodyOptions = [
   "args",
   "colliders",
@@ -84,9 +76,8 @@ export const immutableRigidBodyOptions: ImmutableRigidBodyOptions = [
 type MutableRigidBodyOptions = {
   [Prop in keyof RigidBodyProps]: (rb: RigidBody, value: any) => void;
 };
-*/
+
 // export const mutableRigidBodyOptions: MutableRigidBodyOptions = {
-/*
 export const mutableRigidBodyOptions: any = {
   gravityScale: (rb: RigidBody, value: number) => {
     rb.setGravityScale(value, true);
@@ -138,11 +129,9 @@ export const mutableRigidBodyOptions: any = {
   quaternion: () => {},
   scale: () => {}
 };
-*/
-/*
+
 const mutableRigidBodyOptionKeys = Object.keys(mutableRigidBodyOptions);
-*/
-/*
+
 export const setRigidBodyOptions = (
   rigidBody: RigidBody,
   options: RigidBodyProps,
@@ -192,7 +181,12 @@ export const useUpdateRigidBodyOptions = (
         return vectorToTuple(props[key as keyof RigidBodyProps]);
       })
   ;
-
+/*
+  useEffect(() => {
+    const rigidBody = getRigidBody();
+    setRigidBodyOptions(rigidBody, props, states, updateTranslations);
+  }, mutablePropsAsFlatArray);
+  */
 };
 
 export const useRigidBodyEvents = (
@@ -220,5 +214,22 @@ export const useRigidBodyEvents = (
     onIntersectionExit,
     onContactForce
   };
+/*
+  useEffect(() => {
+    const rigidBody = getRigidBody();
+    events.set(rigidBody.handle, eventHandlers);
+
+    return () => {
+      events.delete(rigidBody.handle);
+    };
+  }, [
+    onWake,
+    onSleep,
+    onCollisionEnter,
+    onCollisionExit,
+    onIntersectionEnter,
+    onIntersectionExit,
+    onContactForce
+  ]);
+  */
 };
-*/

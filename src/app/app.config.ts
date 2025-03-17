@@ -6,12 +6,20 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import {Event} from './game/services/event.service';
 import {Storage} from './game/services/storage.service';
+import {Sounds} from './game/services/sound.service';
+import {Controller} from './game/services/controller.service';
+import {Rapier} from './game/rapier/Rapier';
+import {World} from './game/threejs/World';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes), provideAnimationsAsync(),
     provideHttpClient(withFetch()),
     Event,
-    Storage
+    Storage,
+    Sounds,
+    Controller,
+    Rapier,
+    World
   ]
 };

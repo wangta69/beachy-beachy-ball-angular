@@ -1,21 +1,18 @@
 import * as THREE from "three";
 import RAPIER from '@dimforge/rapier3d-compat';
 import {Rapier} from '../rapier/Rapier';
-
 import {createColliderPropsFromChildren} from './src/utils/utils-collider';
 import {
   rigidBodyDescFromOptions,
 
 } from "./src/utils/utils-rigidbody"
 
-import { UseFrame } from './Interface';
-
 export class RigidBody {
   private rapier: Rapier;
   public object3d: any; // Mesh;
   public rigidBody!: RAPIER.RigidBody;
   // public useFrame = () => {};
-  public useFrame!: {(argument:UseFrame): void;};
+  public useFrame!: {(argument:any): void;};
   private eventQueue: RAPIER.EventQueue;
 
   private collideCallback!: () => void;
@@ -72,12 +69,6 @@ export class RigidBody {
         break;
     }
 
-
-    
-   
-    
-    
-    
     props.restitution ? colliderDesc.setRestitution(props.restitution): 1;
     props.friction ? colliderDesc.setFriction(props.friction): 1;
     // props.rotation ? colliderDesc.setRotation({  x: props.rotation[0], y: props.rotation[1], z: props.rotation[2], w: 1.0 }): null;
@@ -165,17 +156,14 @@ export class RigidBody {
   //   console.log('onCollisionEnter111111111111111');
   // }
 
-  public update(clock: any) {
-    const time = clock.getElapsedTime();
+  public update(time: number) {
+    // const time = clock.getElapsedTime();
     
     // if((this.rigidBody.userData as any).name === 'ball'){
     if(typeof this.onCollisionEnter === 'function') {
       // https://github.com/8Observer8/pong-2d-noobtuts-port-rapier2dcompat-webgl-js-the-raw-is-undefined/blob/main/src/index.js
       this.rapier.world.step(this.eventQueue);
       this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
-        /* Handle the collision event. */
-        // console.log(handle1);
-        // console.log('---------------');
         this.rapier.world.narrowPhase.contactPair(handle1, handle2, (manifold, flipped) => {
           // console.log('handle1:', handle1);
           // console.log('handle2:', handle2);
@@ -192,6 +180,7 @@ export class RigidBody {
       this.useFrame({time});
     }
   }
+
 }
 
 
