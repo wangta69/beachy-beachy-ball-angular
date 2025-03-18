@@ -3,9 +3,14 @@ import * as THREE from "three";
 import RAPIER from '@dimforge/rapier3d-compat';
 import { World } from '../threejs/World';
 import {RapierDebugRenderer} from './RapierDebugRenderer'
-@Injectable()
+// import {RigidBody} from './RigidBody';
+
+@Injectable({
+  providedIn: 'root',
+})
 export class Rapier {
   public world!: RAPIER.World;
+  // public rigidBody: RigidBody;
   private threeJsWorld: World;
   // public dynamicBodies: [THREE.Object3D, RAPIER.RigidBody][] = [];
   public dynamicBodies: any[] = [];
@@ -17,6 +22,7 @@ export class Rapier {
    */
   constructor(world: World) {
     this.threeJsWorld = world;
+    // this.rigidBody = rigidBody;
     // st hit = this.world.castRay(ray, 10, false); 
   }
 
@@ -25,6 +31,8 @@ export class Rapier {
     await RAPIER.init(); // This line is only needed if using the compat version
     const gravity = new RAPIER.Vector3(x, y, z);
     this.world = new RAPIER.World(gravity);
+
+    console.log('initRapier: this.world:', this.world);
 
     this.rapierDebugRenderer = new RapierDebugRenderer(this.threeJsWorld.scene, this.world)
 

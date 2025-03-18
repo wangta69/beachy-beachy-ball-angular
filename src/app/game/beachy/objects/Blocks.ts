@@ -1,12 +1,22 @@
+import { Injector } from '@angular/core';
 import * as THREE from "three";
 
 import {Mesh} from '../../threejs/Mesh';
-import {RigidBody} from '../../rapier/RigidBody';
+import {Body} from '../../rapier/Body';
+import {World} from '../../threejs/World';
+import {Rapier} from '../../rapier/Rapier';
+import {Event} from '../../services/event.service';
 import * as GSAP from 'gsap';
 // import { UseFrame } from '../../rapier/_Interface';
 
+type UseFrame = {
+  time: number;
+  delta: number;
+}
 export class Blocks {
-  private game: any;
+  private world: World; 
+  private rapier: Rapier;
+  private event: Event;
 
   public blockDimensions = {
     width: 4.2,
@@ -14,8 +24,15 @@ export class Blocks {
     length: 4,
   };
 
-  constructor(game: any) {
-    this.game = game;
+  constructor(world:World, rapier:Rapier, event:Event) {
+    this.world = world;
+    this.rapier = rapier;
+    this.event = event;
+
+    // const injector = Injector.create({providers: [{provide: Rapier, deps: []}]});
+    // const injector = Injector.create({providers: []});
+    // this.rapier = injector.get(Rapier);
+    this.rapier = rapier;
   }
 
   private async beach(position:THREE.Vector3Like) {
@@ -30,8 +47,11 @@ export class Blocks {
       }
     });
 
-    const rigidBody: any = new RigidBody(this.game.rapier);
-    await rigidBody.create(
+    // const rigidBody: any = new Body(this.rapier);
+    // const rigidBody: any = ra(this.game.rapier);
+    const body: Body = new Body(this.rapier);
+    await body.create(
+    // await rigidBody.create(
       {
         rigidBody: {
           name: 'beach',
@@ -81,8 +101,8 @@ export class Blocks {
     const obstacle = await this.obstacle({x: position[0], y: position[1] + 0.4, z: position[2]});
     obstacle.scale.set(4.5, 0.3, 0.3);
 
-    const rigidBody: any = new RigidBody(this.game.rapier);
-    await rigidBody.create(
+    const body: Body = new Body(this.rapier);
+    await body.create(
       {
         rigidBody: {
           name: 'obstacle',
@@ -96,65 +116,31 @@ export class Blocks {
 
 
     const speed = (Math.random() + difficulty + 0.5) * (Math.random() < 0.5 ? -1 : 1);
-/*
-    rigidBody.useFrame = (clock: UseFrame) => {
+
+    body.useFrame = (clock: UseFrame) => {
       const time = clock.time;
       const rotation = new THREE.Quaternion();
 
       rotation.setFromEuler(new THREE.Euler(0, time * speed, 0));
-      rigidBody.rigidBody.setNextKinematicRotation(rotation);
+      body.rigidBody.setNextKinematicRotation(rotation);
     };
-    */
 
     return [beach, obstacle];
-
-    /*
-    const obstacle = useRef();
-    const [speed] = useState(
-      () => (Math.random() + difficulty + 0.5) * (Math.random() < 0.5 ? -1 : 1)
-    );
-
-    useFrame((state) => {
-      const time = state.clock.getElapsedTime();
-      const rotation = new THREE.Quaternion();
-      rotation.setFromEuler(new THREE.Euler(0, time * speed, 0));
-      obstacle.current.setNextKinematicRotation(rotation);
-    });
-
-    return (
-      <group position={position}>
-        <mesh beachMaterial OK />
-        <RigidBody
-          ref={obstacle}
-          type="kinematicPosition"
-          position={[0, 0.4, 0]}
-          restitution={0.2}
-          friction={0}
-        >
-          <mesh
-            geometry={boxGeometry}
-            material={obstacleMaterial}
-            scale={[4.5, 0.3, 0.3]}
-            castShadow
-            receiveShadow
-          />
-        </RigidBody>
-      </group>
-    );
-    */
   }
 
   /**
    * BlockDoubleSpinner
    */
+
   public async BlockDoubleSpinner(position = [0, 0, 0], difficulty: number) {
 
     const beach = await this.beach({x: position[0], y: position[1], z: position[2]});
 
     const obstacle1 = await this.obstacle({x:position[0] + this.blockDimensions.width / 4, y: position[1] + 0.4, z: position[2]});
     obstacle1.scale.set(2.25, 0.3, 0.3);
-    const rigidBody: any = new RigidBody(this.game.rapier);
-    await rigidBody.create(
+    // const rigidBody = await this.rapier.rigidBody.create(
+      const body: Body = new Body(this.rapier);
+      await body.create(
       {
         rigidBody: {
           name: 'obstacle',
@@ -170,25 +156,18 @@ export class Blocks {
 
     const direction = (Math.random() < 0.5 ? -1 : 1);
     const speed = difficulty * 2 * direction;
-    rigidBody.useFrame = (clock: any) => {
+    body.useFrame = (clock: any) => {
       const time = clock.time;
       const rotation = new THREE.Quaternion();
 
       rotation.setFromEuler(new THREE.Euler(0, time * speed, 0));
-      rigidBody.rigidBody.setNextKinematicRotation(rotation);
+      body.rigidBody.setNextKinematicRotation(rotation);
     };
 
-    // const obstacle1 = rigidBody.meshObject.mesh;
-
-    // this.createRigidBody(
-    //   {type:'kinematicPosition', position: [this.blockDimensions.width / 4, 0.4, 0], restitution:0.2, friction: 0},
-    //   {type:'mesh', geometry: 'boxGeometry', material: 'obstacleMaterial', scale: [2.25, 0.3, 0.3], castShadow: true, receiveShadow: true},
-    //   group
-    // );
 
     const obstacle2 = await this.obstacle({x: -this.blockDimensions.width / 4 + position[0], y: position[1] + 0.4, z: position[2]});
     obstacle2.scale.set(1.8, 0.3, 0.3);
-    const rigidBody1: any = new RigidBody(this.game.rapier);
+    const rigidBody1: any = new Body(this.rapier);
     rigidBody1.create(
       {
         rigidBody: {
@@ -208,73 +187,21 @@ export class Blocks {
     };
 
     return [beach, obstacle1, obstacle2];
-    /*
-    const obstacle1 = useRef();
-    const obstacle2 = useRef();
 
-    const [direction] = useState(() => (Math.random() < 0.5 ? -1 : 1));
-    const [speed] = useState(() => difficulty * 2 * direction);
-
-    useFrame((state) => {
-      const time = state.clock.getElapsedTime();
-      const rotation1 = new THREE.Quaternion();
-      rotation1.setFromEuler(new THREE.Euler(0, time * speed, 0));
-      obstacle1.current.setNextKinematicRotation(rotation1);
-
-      const rotation2 = new THREE.Quaternion();
-      rotation2.setFromEuler(new THREE.Euler(0, time * -speed, 0));
-      obstacle2.current.setNextKinematicRotation(rotation2);
-    });
-
-    return (
-      <group position={position}>
-        <mesh beachMaterial OK />
-        <RigidBody
-          ref={obstacle1}
-          type="kinematicPosition"
-          position={[blockDimensions.width / 4, 0.4, 0]}
-          restitution={0.2}
-          friction={0}
-        >
-          <mesh
-            geometry={boxGeometry}
-            material={obstacleMaterial}
-            scale={[2.25, 0.3, 0.3]}
-            castShadow
-            receiveShadow
-          />
-        </RigidBody>
-        <RigidBody
-          ref={obstacle2}
-          type="kinematicPosition"
-          position={[-blockDimensions.width / 4, 0.4, 0]}
-          restitution={0.2}
-          friction={0}
-        >
-          <mesh
-            geometry={boxGeometry}
-            material={obstacleMaterial}
-            scale={[1.8, 0.3, 0.3]}
-            castShadow
-            receiveShadow
-          />
-        </RigidBody>
-      </group>
-      
-    );*/
   }
 
   /**
    * BlockLimbo
    */
+
   public async BlockLimbo(position = [0, 0, 0], difficulty:number) {
     const beach = await this.beach({x: position[0], y: position[1], z: position[2]});
 
     const obstacle = await this.obstacle({x: position[0], y: position[1], z: position[2]});
     obstacle.scale.set(4, 0.3, 0.3);
 
-    const rigidBody: any = new RigidBody(this.game.rapier);
-    await rigidBody.create(
+    const body: Body = new Body(this.rapier);
+    await body.create(
       {
         rigidBody: {
           name: 'obstacle',
@@ -287,10 +214,10 @@ export class Blocks {
     );
 
     const timeOffset = Math.random() * Math.PI * 2;
-    rigidBody.useFrame = (clock: any) => {
+    body.useFrame = (clock: any) => {
       const time = clock.time;
       const y = Math.sin(1.5 * difficulty * time + timeOffset) + 1.3;
-      rigidBody.rigidBody.setNextKinematicTranslation({
+      body.rigidBody.setNextKinematicTranslation({
         x: position[0],
         y: position[1] + y,
         z: position[2],
@@ -298,45 +225,13 @@ export class Blocks {
     };
 
     return [beach, obstacle];
-    /*
-    const obstacle = useRef();
-    const [timeOffset] = useState(() => Math.random() * Math.PI * 2);
 
-    useFrame((state) => {
-      const time = state.clock.getElapsedTime();
-      const y = Math.sin(1.5 * difficulty * time + timeOffset) + 1.3;
-      obstacle.current.setNextKinematicTranslation({
-        x: position[0],
-        y: position[1] + y,
-        z: position[2],
-      });
-    });
-
-    return (
-      <group position={position}>
-        <mesh beachMaterial OK />
-        <RigidBody
-          ref={obstacle}
-          type="kinematicPosition"
-          restitution={0.2}
-          friction={0}
-        >
-          <mesh
-            geometry={boxGeometry}
-            material={obstacleMaterial}
-            scale={[4, 0.3, 0.3]}
-            castShadow
-            receiveShadow
-          />
-        </RigidBody>
-      </group>
-    );
-    */
   }
 
   /**
    * BlockDoubleLimbo
    */
+
   public async BlockDoubleLimbo(position = [0, 0, 0], difficulty:number) {
 
     const beach = await this.beach({x: position[0], y: position[1], z: position[2]});
@@ -344,8 +239,8 @@ export class Blocks {
     const obstacle1 = await this.obstacle({x: position[0], y: position[1], z: position[2]});
     obstacle1.scale.set(4, 0.3, 0.3);
 
-    const rigidBody: any = new RigidBody(this.game.rapier);
-    await rigidBody.create(
+    const body: Body = new Body(this.rapier);
+    await body.create(
       {
         rigidBody: {
           name: 'obstacle',
@@ -358,10 +253,10 @@ export class Blocks {
     );
 
     const timeOffset = Math.random() * Math.PI * 2;
-    rigidBody.useFrame = (clock: any) => {
+    body.useFrame = (clock: any) => {
       const time = clock.time;
       const y = 0.3 * Math.sin(difficulty * 1.5 * time + timeOffset) + 1.3;
-      rigidBody.rigidBody.setNextKinematicTranslation({
+      body.rigidBody.setNextKinematicTranslation({
         x: position[0],
         y: position[1] + y + 0.2,
         z: position[2],
@@ -371,8 +266,8 @@ export class Blocks {
     const obstacle2 = await this.obstacle({x: position[0], y: position[1], z: position[2]});
     obstacle2.scale.set(4, 0.3, 0.3);
 
-    const rigidBody1: any = new RigidBody(this.game.rapier);
-    rigidBody1.create(
+    const body1: Body = new Body(this.rapier);
+    await body1.create(
       {
         rigidBody: {
           name: 'obstacle',
@@ -384,10 +279,10 @@ export class Blocks {
       }
     );
 
-    rigidBody1.useFrame = (clock: any) => {
+    body1.useFrame = (clock: any) => {
       const time = clock.time;
       const y = -0.3 * Math.sin(1.5 * difficulty * time + timeOffset) + 1.3;
-      rigidBody1.rigidBody.setNextKinematicTranslation({
+      body1.rigidBody.setNextKinematicTranslation({
         x: position[0],
         y: position[1] + y- 0.8,
         z: position[2],
@@ -396,75 +291,20 @@ export class Blocks {
 
 
     return [beach, obstacle1, obstacle2];
-    /*
-    const obstacle1 = useRef();
-    const obstacle2 = useRef();
-    const [timeOffset] = useState(() => Math.random() * Math.PI * 2);
-
-    useFrame((state) => {
-      const time = state.clock.getElapsedTime();
-      const y1 = 0.3 * Math.sin(difficulty * 1.5 * time + timeOffset) + 1.3;
-      obstacle1.current.setNextKinematicTranslation({
-        x: position[0],
-        y: position[1] + y1 + 0.2,
-        z: position[2],
-      });
-
-      const y2 = -0.3 * Math.sin(1.5 * difficulty * time + timeOffset) + 1.3;
-      obstacle2.current.setNextKinematicTranslation({
-        x: position[0],
-        y: position[1] + y2 - 0.8,
-        z: position[2],
-      });
-    });
-
-    return (
-      <group position={position}>
-        <mesh beachMaterial OK />
-        <RigidBody
-          ref={obstacle1}
-          type="kinematicPosition"
-          restitution={0.2}
-          friction={0}
-        >
-          <mesh
-            geometry={boxGeometry}
-            material={obstacleMaterial}
-            scale={[4, 0.3, 0.3]}
-            castShadow
-            receiveShadow
-          />
-        </RigidBody>
-        <RigidBody
-          ref={obstacle2}
-          type="kinematicPosition"
-          restitution={0.2}
-          friction={0}
-        >
-          <mesh
-            geometry={boxGeometry}
-            material={obstacleMaterial}
-            scale={[4, 0.3, 0.3]}
-            castShadow
-            receiveShadow
-          />
-        </RigidBody>
-      </group>
-    );
-    */
   }
 
   /**
    * BlockPlatformLimbo
    */
+
   public async BlockPlatformLimbo(position = [0, 0, 0], difficulty:number) {
     const beach = await this.beach({x: position[0], y: position[1], z: position[2]});
 
     const obstacle = await this.obstacle({x: position[0], y: position[1], z: position[2]});
     obstacle.scale.set(4, 0.3, 3);
 
-    const rigidBody: any = new RigidBody(this.game.rapier);
-    await rigidBody.create(
+    const body: Body = new Body(this.rapier);
+    await body.create(
       {
         rigidBody: {
           name: 'obstacle',
@@ -478,10 +318,10 @@ export class Blocks {
 
 
     const timeOffset = Math.random() * Math.PI * 2;
-    rigidBody.useFrame = (clock: any) => {
+    body.useFrame = (clock: any) => {
       const time = clock.time;
       const y = Math.sin(1.5 * difficulty * time + timeOffset) + 1.3;
-      rigidBody.rigidBody.setNextKinematicTranslation({
+      body.rigidBody.setNextKinematicTranslation({
         x: position[0],
         y: position[1] + y,
         z: position[2],
@@ -489,45 +329,12 @@ export class Blocks {
     };
 
     return [beach, obstacle];
-    /*
-    const obstacle = useRef();
-    const [timeOffset] = useState(() => Math.random() * Math.PI * 2);
-
-    useFrame((state) => {
-      const time = state.clock.getElapsedTime();
-      const y = Math.sin(1.5 * difficulty * time + timeOffset) + 1.3;
-      obstacle.current.setNextKinematicTranslation({
-        x: position[0],
-        y: position[1] + y,
-        z: position[2],
-      });
-    });
-
-    return (
-      <group position={position}>
-        <mesh beachMaterial OK />
-        <RigidBody
-          ref={obstacle}
-          type="kinematicPosition"
-          restitution={0.2}
-          friction={0}
-        >
-          <mesh
-            geometry={boxGeometry}
-            material={obstacleMaterial}
-            scale={[4, 0.3, 3]}
-            castShadow
-            receiveShadow
-          />
-        </RigidBody>
-      </group>
-    );
-    */
   }
 
   /**
    * BlockRamp
    */
+
   public async BlockRamp(position = [0, 0, 0], difficulty:number) {
     const beach = await this.beach({x: position[0], y: position[1], z: position[2]});
 
@@ -537,8 +344,8 @@ export class Blocks {
     // obstacle.rotation.set(100, 0.75, 0.75);
 
 
-    const rigidBody: any = new RigidBody(this.game.rapier);
-    await rigidBody.create(
+    const body: Body = new Body(this.rapier);
+    await body.create(
       {
         rigidBody: {
           name: 'obstacle',
@@ -551,24 +358,6 @@ export class Blocks {
     );
 
     return [beach, obstacle];
-    /*
-    return (
-      <group position={position}>
-        <mesh beachMaterial OK />
-        <RigidBody type="kinematicPosition" restitution={0.2} friction={0}>
-          <mesh
-            geometry={boxGeometry}
-            material={obstacleMaterial}
-            position={[0, 0.4, 0]}
-            scale={[4, 0.3, 1.5]}
-            rotation={[0.75, 0, 0]}
-            castShadow
-            receiveShadow
-          />
-        </RigidBody>
-      </group>
-    );
-    */
   }
 
   /**
@@ -581,8 +370,8 @@ export class Blocks {
     const obstacle = await this.obstacle({x:position[0], y: position[1], z: position[2]});
     obstacle.scale.set(1.7, 1.8, 0.3);
 
-    const rigidBody: any = new RigidBody(this.game.rapier);
-    await rigidBody.create(
+    const body: Body = new Body(this.rapier);
+    await body.create(
       {
         rigidBody: {
           name: 'obstacle',
@@ -595,10 +384,10 @@ export class Blocks {
 
     const timeOffset = Math.random() * Math.PI * 2;
 
-    rigidBody.useFrame = (clock: any) => {
+    body.useFrame = (clock: any) => {
       const time = clock.time;
       const x = Math.sin(difficulty * 1.5 * time + timeOffset) * 1.25;
-      rigidBody.rigidBody.setNextKinematicTranslation({
+      body.rigidBody.setNextKinematicTranslation({
         x: position[0] + x,
         y: position[1] + 0.75,
         z: position[2],
@@ -606,45 +395,12 @@ export class Blocks {
     };
 
     return [beach, obstacle];
-    /*
-    const obstacle = useRef();
-    const [timeOffset] = useState(() => Math.random() * Math.PI * 2);
-
-    useFrame((state) => {
-      const time = state.clock.getElapsedTime();
-      const x = Math.sin(difficulty * 1.5 * time + timeOffset) * 1.25;
-      obstacle.current.setNextKinematicTranslation({
-        x: position[0] + x,
-        y: position[1] + 0.75,
-        z: position[2],
-      });
-    });
-
-    return (
-      <group position={position}>
-        <mesh beachMaterial OK />
-        <RigidBody
-          ref={obstacle}
-          type="kinematicPosition"
-          restitution={0.2}
-          friction={0}
-        >
-          <mesh
-            geometry={boxGeometry}
-            material={obstacleMaterial}
-            scale={[1.7, 1.8, 0.3]}
-            castShadow
-            receiveShadow
-          />
-        </RigidBody>
-      </group>
-    );
-    */
   }
 
   /**
    * BlockDoubleSlidingWall
    */
+
   public async BlockDoubleSlidingWall(position = [0, 0, 0], difficulty:number) {
     const beach = await this.beach({x: position[0], y: position[1], z: position[2]});
 
@@ -654,8 +410,8 @@ export class Blocks {
     const obstacle1 = await this.obstacle({x: position[0], y: position[1], z: position[2]});
     obstacle1.scale.set(1, 1.8, 0.3);
 
-    const rigidBody: any = new RigidBody(this.game.rapier);
-    await rigidBody.create(
+    const body: Body = new Body(this.rapier);
+    await body.create(
       {
         rigidBody: {
           name: 'obstacle',
@@ -669,10 +425,10 @@ export class Blocks {
 
     const timeOffset = Math.random() * Math.PI * 2;
 
-    rigidBody.useFrame = (clock: any) => {
+    body.useFrame = (clock: any) => {
       const time = clock.time;
       const x1 = Math.sin(difficulty * 2 * time + timeOffset) * 0.5 + 1;
-      rigidBody.rigidBody.setNextKinematicTranslation({
+      body.rigidBody.setNextKinematicTranslation({
         x: position[0] + x1,
         y: position[1] + 0.75,
         z: position[2],
@@ -682,8 +438,8 @@ export class Blocks {
     const obstacle2 = await this.obstacle({x: position[0], y: position[1], z: position[2]});
     obstacle2.scale.set(1, 1.8, 0.3);
 
-    const rigidBody1: any = new RigidBody(this.game.rapier);
-    rigidBody1.create(
+    const body1: Body = new Body(this.rapier);
+    await body1.create(
       {
         rigidBody: {
           name: 'obstacle',
@@ -694,10 +450,10 @@ export class Blocks {
       }
     );
 
-    rigidBody1.useFrame = (clock: any) => {
+    body1.useFrame = (clock: any) => {
       const time = clock.time;
       const x2 = -Math.sin(difficulty * 2 * time + timeOffset) * 0.5 - 1;
-      rigidBody1.rigidBody.setNextKinematicTranslation({
+      body1.rigidBody.setNextKinematicTranslation({
         x: position[0] + x2,
         y: position[1] + 0.75,
         z: position[2],
@@ -705,64 +461,8 @@ export class Blocks {
     };
 
     return [beach, obstacle1, obstacle2];
-    /*
-    const wall1 = useRef();
-    const wall2 = useRef();
-
-    const [timeOffset] = useState(() => Math.random() * Math.PI * 2);
-
-    useFrame((state) => {
-      const time = state.clock.getElapsedTime();
-      const x1 = Math.sin(difficulty * 2 * time + timeOffset) * 0.5 + 1;
-      wall1.current.setNextKinematicTranslation({
-        x: position[0] + x1,
-        y: position[1] + 0.75,
-        z: position[2],
-      });
-
-      const x2 = -Math.sin(difficulty * 2 * time + timeOffset) * 0.5 - 1;
-      wall2.current.setNextKinematicTranslation({
-        x: position[0] + x2,
-        y: position[1] + 0.75,
-        z: position[2],
-      });
-    });
-
-    return (
-      <group position={position}>
-        <mesh beachMaterial OK />
-        <RigidBody
-          ref={wall1}
-          type="kinematicPosition"
-          restitution={0.2}
-          friction={0}
-        >
-          <mesh
-            geometry={boxGeometry}
-            material={obstacleMaterial}
-            scale={[1, 1.8, 0.3]}
-            castShadow
-            receiveShadow
-          />
-        </RigidBody>
-        <RigidBody
-          ref={wall2}
-          type="kinematicPosition"
-          restitution={0.2}
-          friction={0}
-        >
-          <mesh
-            geometry={boxGeometry}
-            material={obstacleMaterial}
-            scale={[1, 1.8, 0.3]}
-            castShadow
-            receiveShadow
-          />
-        </RigidBody>
-      </group>
-    );
-    */
   }
+
 
   /**
    * BlockEnd
@@ -779,9 +479,9 @@ export class Blocks {
       position: {x: position[0], y: 1.05 + position[1], z: position[2]},
       scale:{x:0.012, y:0.012, z:0.012}});
 
-   
-    const rigidBody: RigidBody = new RigidBody(this.game.rapier);
-    await rigidBody.create(
+
+    const body: Body = new Body(this.rapier);
+    await body.create(
       {
         rigidBody: {
           name: 'star',
@@ -817,13 +517,13 @@ export class Blocks {
         // const delta = tween.rotate - tween.prerotate;
         // const deltaAngle = delta;
 
-        // rigidBody.rigidBody.setRotation({ w: 1.0, x: 0.0, y: deltaAngle, z: 0.0 });
-        rigidBody.rigidBody.setRotation({  x: 0.0, y: tween.rotate, z: 0.0, w: 1.0 }, true);
+        // body.rigidBody.setRotation({ w: 1.0, x: 0.0, y: deltaAngle, z: 0.0 });
+        body.rigidBody.setRotation({  x: 0.0, y: tween.rotate, z: 0.0, w: 1.0 }, true);
         // new THREE.Euler( 0, tween.rotate, 0, 'XYZ' );
-        // rigidBody.rigidBody.setRotation(new THREE.Euler( 0, tween.rotate, 0, 'XYZ' ));
+        // body.rigidBody.setRotation(new THREE.Euler( 0, tween.rotate, 0, 'XYZ' ));
 
-        // rigidBody.rigidBody.setTranslation(0, 0, 0);
-        // rigidBody.rigidBody.setTranslation(rotation.x++, rotation.y++, rotation.z++);
+        // body.rigidBody.setTranslation(0, 0, 0);
+        // body.rigidBody.setTranslation(rotation.x++, rotation.y++, rotation.z++);
     
       },
       onComplete: () => {
@@ -837,20 +537,7 @@ export class Blocks {
     //   {type:'star', scale:0.012},
     //   group
     // );
-/*
-    const rigidBody = this.game.rapier.world.createRigidBody(
-      RAPIER.RigidBodyDesc.fixed()
-      // .setTranslation(0, 0.4, 0)
-      //.setCanSleep(false)
-    );
 
-    const colliderDesc1 = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5)
-      // .setMass(1)
-      .setRestitution(0.2)
-      .setFriction(0);
-    this.game.rapier.world.createCollider(colliderDesc1, rigidBody);
-    this.game.rapier.dynamicBodies.push([beach, rigidBody]);
-*/
 
     // const star: any = await Star(null);
     // star.scale.set(0.012);
@@ -858,41 +545,12 @@ export class Blocks {
     // return group;
 
    
-    /*
-    const { end } = useGame();
 
-    function onHit() {
-      end();
-    }
-
-    return (
-      <group position={position}>
-        <mesh beachMaterial OK />
-        <Float
-          speed={25}
-          rotationIntensity={0.25}
-          floatIntensity={0.25}
-          floatingRange={[-0.01, 0.01]}
-        >
-          <RigidBody
-            type="fixed"
-            colliders="trimesh"
-            position={[0, 1.05, 0]}
-            rotation={[0, Math.PI / 2, 0]}
-            restitution={0.2}
-            friction={0}
-            onCollisionEnter={onHit}
-          >
-            <Star scale={0.012} />
-          </RigidBody>
-        </Float>
-      </group>
-    );
-    */
   }
+  
 
   private onHit() {
-    this.game.event.broadcast('status', {phase: 'end'});
+    this.event.broadcast('status', {phase: 'end'});
   }
 
 }

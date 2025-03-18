@@ -5,7 +5,7 @@ import { Subject, filter, map } from 'rxjs';
 import * as THREE from 'three';
 import {World} from '../threejs/World';
 import {Rapier} from '../rapier/Rapier';
-import {RigidBody} from '../rapier/RigidBody';
+import {Body} from '../rapier/Body';
 import {Ball} from './objects/Ball';
 // import {BlockEmpty} from './level/components/Blocks';
 import {Levels} from './level/Level';
@@ -13,6 +13,7 @@ import {Levels} from './level/Level';
 import {Settings} from './interface/types';
 import {Event, Message} from '../services/event.service';
 import {Storage} from '../services/storage.service';
+import {Sounds} from '../services/sound.service';
 import {Interface} from './interface/Interface';
 // import { Observable, filter, map } from 'rxjs';
 @Component({
@@ -36,8 +37,6 @@ export class Game implements OnInit, AfterViewInit{
 
   public world!:World;
   public ball!:Ball;
-  private rigidBody!: RigidBody;
-  // private rapier!: Rapier; // = new Rapier(0.0, -9.81, 0.0);
   public rapier:Rapier;
   private isInGame = false;
   public isSettings = false;
@@ -45,9 +44,10 @@ export class Game implements OnInit, AfterViewInit{
   public mode = 'random';
   public difficulty = 1;
   public blocksCount = 10;
-
+  private sounds: Sounds;
   private levels!:Levels;
   public level = 'copacabana';
+
 
 
   public settings: Settings = {
@@ -81,11 +81,12 @@ export class Game implements OnInit, AfterViewInit{
   public event: Event;
   private storage: Storage;
 
-  constructor(event: Event, storage: Storage, world: World, rapier:Rapier) { // 
+  constructor(event: Event, storage: Storage, world: World, rapier:Rapier, sounds: Sounds) { // 
     
     this.storage = storage;
     this.world = world;
     this.rapier = rapier;
+    this.sounds = sounds;
     this.settings = storage.get('beachyball.settings');
 
     const statics = storage.get('beachyball.statics');
@@ -250,14 +251,10 @@ export class Game implements OnInit, AfterViewInit{
   private async create() {
     await this.rapier.initRapier(0.0, -9.81, 0.0);
     this.world.create();
-    // this.world = new World( this );
-    // this.world = new World<GameComponent>( GameComponent );
-    // this.world = new World( GameComponent );
-    this.rigidBody = new RigidBody(this.rapier);
-    setTimeout(async () => {
-      this.ball = new Ball(this);
 
-      this.levels = new Levels(this);
+    setTimeout(async () => {
+      this.ball = new Ball(this.world, this.rapier, this.event, this.sounds);
+      this.levels = new Levels(this.world, this.rapier, this.event);
        
       const blocks = await this.levels.RandomLevel();
 

@@ -9,6 +9,7 @@ import {Storage} from './game/services/storage.service';
 import {Sounds} from './game/services/sound.service';
 import {Controller} from './game/services/controller.service';
 import {Rapier} from './game/rapier/Rapier';
+// import {Body} from './game/rapier/Body';
 import {World} from './game/threejs/World';
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,7 +20,8 @@ export const appConfig: ApplicationConfig = {
     Storage,
     Sounds,
     Controller,
-    Rapier,
+    // Rapier,
+    // RigidBody,
     World
   ]
 };

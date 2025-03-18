@@ -1,13 +1,17 @@
+import { Injectable, Injector, inject } from '@angular/core';
 import * as THREE from "three";
 import RAPIER from '@dimforge/rapier3d-compat';
-import {Rapier} from '../rapier/Rapier';
+import {Rapier} from './Rapier';
+
 import {createColliderPropsFromChildren} from './src/utils/utils-collider';
 import {
   rigidBodyDescFromOptions,
 
 } from "./src/utils/utils-rigidbody"
 
-export class RigidBody {
+
+@Injectable()
+export class Body {
   private rapier: Rapier;
   public object3d: any; // Mesh;
   public rigidBody!: RAPIER.RigidBody;
@@ -15,13 +19,12 @@ export class RigidBody {
   public useFrame!: {(argument:any): void;};
   private eventQueue: RAPIER.EventQueue;
 
-  private collideCallback!: () => void;
+  // private collideCallback!: () => void;
   private onCollisionEnter!: (args?:any) => void;
+
   constructor(rapier: Rapier) {
     this.rapier = rapier;
-
     this.eventQueue = new RAPIER.EventQueue(true);
-    // this.rapier.world.step(this.eventQueue);
   }
 
   /**
@@ -41,8 +44,6 @@ export class RigidBody {
     const childColliderProps = createColliderPropsFromChildren({object: this.object3d, options: option, ignoreMeshColliders: true})
     const desc = rigidBodyDescFromOptions(option);
     const props = childColliderProps[0];
-
-
 
 
     const args = props.args;
@@ -115,8 +116,6 @@ export class RigidBody {
     // }
 
 
-    
-
     this.rigidBody = this.rapier.world.createRigidBody(rigidBodyDesc);
     option.name ? this.rigidBody.userData = {name: option.name}: null;
     // this.rigidBody.setRotation({  x: 0.0, y: tween.rotate, z: 0.0, w: 1.0 }, true)
@@ -152,29 +151,16 @@ export class RigidBody {
     return this.rigidBody;
   }
 
-  // private onCollisionEnter1() {
-  //   console.log('onCollisionEnter111111111111111');
-  // }
 
   public update(time: number) {
-    // const time = clock.getElapsedTime();
-    
-    // if((this.rigidBody.userData as any).name === 'ball'){
     if(typeof this.onCollisionEnter === 'function') {
       // https://github.com/8Observer8/pong-2d-noobtuts-port-rapier2dcompat-webgl-js-the-raw-is-undefined/blob/main/src/index.js
       this.rapier.world.step(this.eventQueue);
       this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
         this.rapier.world.narrowPhase.contactPair(handle1, handle2, (manifold, flipped) => {
-          // console.log('handle1:', handle1);
-          // console.log('handle2:', handle2);
-          // console.log('manifold:', manifold.normal());
-          // console.log('flipped:', flipped);
-          // if(typeof this.onCollisionEnter === 'function') {
-            this.onCollisionEnter();
-          // }
+          this.onCollisionEnter();
         });
       });
-      // console.log((this.rigidBody.userData as any).name);
     }
     if(this.useFrame) {
       this.useFrame({time});

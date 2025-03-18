@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import { Howl } from 'howler';
+import { Howl, HowlOptions } from 'howler';
 
 @Injectable()
 export class Sounds {
@@ -10,29 +10,34 @@ export class Sounds {
   private soundsInfo = [
     {name: 'hit', src:'/sounds/hit.mp3'},
     {name: 'success', src:'/sounds/success.mp3'},
-    {name: 'background', loop: true, paly: true, src:'/sounds/background.mp3'},
+    {name: 'background', loop: true, autoplay: true, src:'/sounds/background.mp3'},
   ]
   constructor(
   ) {
   }
 
   public load() {
+    
     this.soundsInfo.forEach((sound: any) => {
-      const loop = sound.loop || false;
-      const volume = sound.volume || 0.2;
-      this.sounds[sound.name] = new Howl({
+      
+
+      const option: HowlOptions = {
         src: [sound.src],
         preload: true,
-        // html5: true,
-        loop,
-        volume,
         onloaderror: (id, err) => {
           console.warn('load ' + sound.name + ' error', { id, err });
         },
-      });
+      }
+      option.autoplay = sound.autoplay || false;
+      option.loop = sound.loop || false;
+      option.html5 = sound.html5 || false;
+      option.volume = sound.volume || 0.2;
+      
+      this.sounds[sound.name] = new Howl(option);
 
-      if(sound.paly) {
+      if(sound.play) {
         this.sounds[sound.name].once('load', () => {
+          // console.log('this.play('+sound.name+')');
           this.play(sound.name);
         });
       }
@@ -49,12 +54,6 @@ export class Sounds {
     // this.sounds[name].stop(this.sounds[name].id);
   }
 
-  public bgm(flag: string) {
-    switch(flag) {
-      // case 'stop': this.sounds.bgm.stop(this.bgSoundId); break;
-      // case 'play': this.playGameSound('bgm'); break;
-    }
-  }
 
   /**
    * @param String sound : play, wailt, alert

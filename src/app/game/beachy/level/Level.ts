@@ -9,6 +9,9 @@
 // type RAPIER_API = typeof import("@dimforge/rapier3d");
 
 import * as THREE from "three";
+import {World} from '../../threejs/World';
+import {Rapier} from '../../rapier/Rapier';
+import {Event} from '../../services/event.service';
 // import useGame from "../stores/useGame";
 // import {
 //   blockDimensions,
@@ -45,10 +48,10 @@ import levels from "./components/Levels";
 
 export class Levels {
   private blocks!:Blocks;
-  private game: any;
-  constructor(game: any) {
-    this.game = game;
-    this.blocks = new Blocks(game);
+
+  constructor(world:World, rapier:Rapier, event:Event) {
+
+    this.blocks = new Blocks(world, rapier, event);
   }
 
   public Bounds(length = 1) {
@@ -76,24 +79,9 @@ export class Levels {
       'BlockLimbo',
       'BlockDoubleLimbo',
       // 'BlockPlatformLimbo',
-      // 'BlockRamp'
+      // 'BlockRamp',
     ],
-    // types = [
-    //   'BlockRamp',
-    // ],
-/*
-    types = [
-      'BlockSpinner',
-      'BlockDoubleSpinner',
-      'BlockSlidingWall',
-      'BlockDoubleSlidingWall',
-      'BlockLimbo',
-      'BlockDoubleLimbo',
-      
-      // this.blocks.BlockPlatformLimbo,
-      // this.blocks.BlockRamp
-    ],
-    */
+
     seed = 0,
     difficulty = 1,
   ) {

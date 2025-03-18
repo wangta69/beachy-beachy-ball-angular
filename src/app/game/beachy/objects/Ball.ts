@@ -1,24 +1,37 @@
 import * as THREE from "three";
 import RAPIER from '@dimforge/rapier3d-compat';
-import {RigidBody} from '../../rapier/RigidBody';
+import {Body} from '../../rapier/Body';
 
 import {Mesh} from '../../threejs/Mesh';
-import { Game } from "../Game";
+import {World} from '../../threejs/World';
+import {Rapier} from '../../rapier/Rapier';
+import {Event} from '../../services/event.service';
+import {Sounds} from '../../services/sound.service';
 
 export class Ball {
-  private game: Game;
   private bodyMesh!:THREE.Object3D | THREE.Mesh; 
   private body!: RAPIER.RigidBody;
 
+  private world: World; 
+  private rapier: Rapier;
+  private event: Event;
+  private sounds: Sounds;
+  
   private direction: string | null = null;
 
   private smoothedCameraPosition = new THREE.Vector3(0, 0, 200); // initial camera position
   private smoothedCameraTarget = new THREE.Vector3();
   
-  constructor( game: Game ) {
-    this.game = game;
+  constructor(world:World, rapier:Rapier, event:Event, sounds:Sounds) { // rapier: Rapier
+    this.world = world;
+    this.rapier = rapier;
+    this.event = event;
+    this.sounds = sounds;
+    console.log('ball constructor: sounds:', sounds)
     this.createBall();
   }
+
+
 
   private async createBall() {
 
@@ -32,8 +45,8 @@ export class Ball {
 
     this.bodyMesh = ball;
 
-    const rigidBody: RigidBody = new RigidBody(this.game.rapier);
-    this.body = await rigidBody.create(
+    const body: Body = new Body(this.rapier);
+    this.body = await body.create(
       {
         rigidBody: {
           // type:'kinematicPosition', 
@@ -44,15 +57,15 @@ export class Ball {
           linearDamping:0.5,
           angulularDamping:0.5,
           // position:{x:0, y:1, z:0}
-          onCollisionEnter:this.onHit
+          onCollisionEnter:this.onHit.bind(this)
         },
         object3d:ball
       }
     );
     
-    this.game.world.scene.add(this.bodyMesh);
+    this.world.scene.add(this.bodyMesh);
 
-    this.game.world.updates.push((clock:any)=>{this.update(clock)});
+    this.world.updates.push((clock:any)=>{this.update(clock)});
   }
 
   public action(params: any) {
@@ -71,13 +84,13 @@ export class Ball {
   }
   
   private jump(){
-    // const origin = this.bodyMesh.position;
+
     const origin = this.body.translation();
     origin.y -= 0.31;
 
     const direction = { x: 0, y: -1, z: 0 };
     const ray = new RAPIER.Ray(origin, direction);
-    const hit: RAPIER.RayColliderHit | null = this.game.rapier.world.castRay(ray, 10, true); // true: considers everything as solid
+    const hit: RAPIER.RayColliderHit | null = this.rapier.world.castRay(ray, 10, true); // true: considers everything as solid
     
     if (hit && hit.timeOfImpact < 0.15) {
       this.body.applyImpulse(new RAPIER.Vector3(0, 0.75, 0), true);
@@ -147,19 +160,21 @@ export class Ball {
     this.smoothedCameraPosition.lerp(cameraPosition, 5 * delta);
     this.smoothedCameraTarget.lerp(cameraTarget, 5 * delta);
 
-    this.game.world.camera.position.copy(this.smoothedCameraPosition);
-    this.game.world.camera.lookAt(this.smoothedCameraTarget);
+    this.world.camera.position.copy(this.smoothedCameraPosition);
+    this.world.camera.lookAt(this.smoothedCameraTarget);
 
 
     // Restart
     
     if (bodyPosition.y < -4) {
-      this.game.event.broadcast('status', {phase: 'restart'});
+      this.event.broadcast('status', {phase: 'restart'});
     }
 
   }
 
    private onHit() {
+    console.log('onHit :', this.sounds);
+    this.sounds.play('hit');
   //   hitSound.currentTime = 0
   //   hitSound.volume = Math.random() * 0.1
   //   hitSound.play()

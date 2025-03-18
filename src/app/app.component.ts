@@ -29,7 +29,6 @@ export class AppComponent implements OnInit{
       .addSvgIcon('icon_menu', this.sanitizer.bypassSecurityTrustResourceUrl('/icons/menu.svg'))
       .addSvgIcon('icon_sound_off', this.sanitizer.bypassSecurityTrustResourceUrl('/icons/sound_off.svg'))
       .addSvgIcon('icon_sound_on', this.sanitizer.bypassSecurityTrustResourceUrl('/icons/sound_on.svg'))
-
   }
   
 }
