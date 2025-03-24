@@ -1,0 +1,225 @@
+
+
+<div class="main-menu"> <!--  style="display: none;"-->
+  <!-- <img class="logo-ball" src={LogoBall} /> -->
+  <mat-icon class="logo-ball" svgIcon="logo_ball_stroke"></mat-icon>
+  <!-- <img class="wordmark" src={Wordmark} /> -->
+  <mat-icon class="wordmark" svgIcon="wordmark"></mat-icon>
+  <div class="main-menu-button" (click)="setIsInGame(true)">
+    Play
+  </div>
+  
+
+  <ng-container *ngIf="!settings.isSettings else isnotSettings">
+    <div class="main-menu-button" (click)="setIsSettings(true)">
+      Settings
+    </div>
+  </ng-container>
+  <ng-template #isnotSettings>
+    <div class="main-menu-section-title">Mode</div>
+    <div class="main-menu-selection-area">
+      <div
+        class="main-menu-selection"
+        [class.main-menu-selected]="settings.mode==='random'"
+        (click)="setMode('random')"
+      >
+        Random
+      </div>
+      <div
+        class="main-menu-selection"
+        [class.main-menu-selected]="settings.mode==='tour'"
+        (click)="setMode('tour')"
+      >
+        Tour
+      </div>
+      <div
+        class="main-menu-selection"
+        [class.main-menu-selected]="settings.mode==='adventure'"
+        (click)="setMode('adventure')"
+      >
+        Adventure
+      </div>
+    </div>
+
+    <ng-container *ngIf="settings.mode === 'random'">
+
+        <div class="main-menu-section-title">Difficulty</div>
+        <div class="main-menu-selection-area">
+          <div
+            class="main-menu-selection"
+            [class.main-menu-selected]="settings.difficulty===1"
+            (click)="setDifficulty(1);"
+          >
+            Easy
+          </div>
+          <div
+            class="main-menu-selection"
+            [class.main-menu-selected]="settings.difficulty===3"
+            (click)="setDifficulty(3);"
+          >
+            Medium
+          </div>
+          <div
+            class="main-menu-selection"
+            [class.main-menu-selected]="settings.difficulty===5"
+            (click)="setDifficulty(5);"
+          >
+            Hard
+          </div>
+          <div
+            class="main-menu-selection"
+            [class.main-menu-selected]="settings.difficulty===10"
+            (click)="setDifficulty(10);"
+          >
+            Evil
+          </div>
+        </div>
+
+        <div class="main-menu-section-title">Number of Blocks</div>
+        <div class="main-menu-selection-area">
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="settings.blocksCount===5"
+            (click)="setBlocksCount(5);"
+          >
+            5
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="settings.blocksCount===10"
+            (click)="setBlocksCount(10);"
+          >
+            10
+          </div>
+
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="settings.blocksCount===15"
+            (click)="setBlocksCount(15);"
+          >
+            15
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="settings.blocksCount===20"
+            (click)="setBlocksCount(20);"
+          >
+            20
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="settings.blocksCount===30"
+            (click)="setBlocksCount(30);"
+          >
+            30
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="settings.blocksCount===40"
+            (click)="setBlocksCount(40);"
+          >
+            40
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="settings.blocksCount===50"
+            (click)="setBlocksCount(50);"
+          >
+            50
+          </div>
+          <div
+            class="main-menu-selection main-menu-selection-short"
+            [class.main-menu-selected]="settings.blocksCount===100"
+            (click)="setBlocksCount(100);"
+          >
+            100
+          </div>
+        </div>
+    </ng-container>
+
+
+    <ng-container *ngIf="settings.mode === 'tour'">
+      <div class="main-menu-section-title">Difficulty</div>
+      <div class="main-menu-selection-area">
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="settings.difficulty===1"
+
+          (click)="setDifficulty(1);"
+        >
+          Easy
+        </div>
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="settings.difficulty===3"
+          (click)="setDifficulty(3);"
+        >
+          Medium
+        </div>
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="settings.difficulty===5"
+          (click)="setDifficulty(5);"
+        >
+          Hard
+        </div>
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="settings.difficulty===10"
+          (click)="setDifficulty(10);"
+        >
+          Evil
+        </div>
+      </div>
+
+      <div class="main-menu-section-title">Beach</div>
+      <div class="main-menu-selection-area">
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="settings.level==='copacabana'"
+
+          (click)="setLevel('copacabana');"
+        >
+          Copacabana
+        </div>
+        <div
+          class="main-menu-selection"
+          [class.main-menu-selected]="settings.level==='santamonica'"
+          (click)="setLevel('santamonica');"
+        >
+          Santa Monica
+        </div>
+      </div>
+      <div class="coming-soon">More beaches coming soon!</div>
+    </ng-container>
+
+    <ng-container *ngIf="settings.mode === 'adventure'">
+      <div class="coming-soon">Coming soon!</div>
+    </ng-container>
+  </ng-template>
+
+
+
+ 
+
+  <div class="main-menu-about-section">
+    <div class="main-menu-about">
+      <a href="https://github.com/michaelkolesidis/beachy-beachy-ball">
+        © 2023 Michael Kolesidis.
+      </a>
+    </div>
+    <div class="main-menu-about">
+      <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
+        Licensed under the GNU AGPL 3.0
+      </a>
+    </div>
+  </div>
+  <a href="https://michaelkolesidis.com" target="_blank">
+    <!-- <img
+      class="author-logo"
+      src={MichaelLogo}
+      alt="Author's logo"
+    > -->
+    <mat-icon class="author-logo" svgIcon="mm_white" alt="Author's logo"></mat-icon>
+  </a>
+</div>

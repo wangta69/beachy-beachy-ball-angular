@@ -8,9 +8,9 @@ import {Event} from './game/services/event.service';
 import {Storage} from './game/services/storage.service';
 import {Sounds} from './game/services/sound.service';
 import {Controller} from './game/services/controller.service';
-import {Rapier} from './game/rapier/Rapier';
+// import {Rapier} from './game/rapier/Rapier';
 // import {Body} from './game/rapier/Body';
-import {World} from './game/threejs/World';
+// import {World} from './game/threejs/World';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }), 
@@ -22,6 +22,6 @@ export const appConfig: ApplicationConfig = {
     Controller,
     // Rapier,
     // RigidBody,
-    World
+    // World
   ]
 };

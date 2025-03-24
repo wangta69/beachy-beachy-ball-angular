@@ -2,8 +2,8 @@ import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
-import {MainMenu} from './interface/MainMenu';
-import {Game} from './Game';
+import {MainMenu} from './beachy/interface/MainMenu';
+import {Game} from './beachy/Game';
 import {Sounds} from './services/sound.service';
 @Component({
   selector: 'app-root',
