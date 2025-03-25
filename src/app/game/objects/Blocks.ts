@@ -1,17 +1,7 @@
-// import { Injector } from '@angular/core';
 import * as THREE from "three";
-
-// import {Mesh} from '../../threejs/Mesh';
-// import {Body} from '../../rapier/Body';
-// import {World} from '../../threejs/World';
-// import {Rapier} from '../../rapier/Rapier';
 import {Rapier, World, Body, Mesh} from '../../projects/ng-rapier-threejs/src/public-api';
-
 import {Event} from '../services/event.service';
 import * as GSAP from 'gsap';
-
-// import {vectorArrayToVector3} from '../../rapier/src/_utils/utils'; 
-// // import { UseFrame } from '../../rapier/_Interface';
 
 type UseFrame = {
   time: number;
@@ -33,9 +23,6 @@ export class Blocks {
     this.rapier = rapier;
     this.event = event;
 
-    // const injector = Injector.create({providers: [{provide: Rapier, deps: []}]});
-    // const injector = Injector.create({providers: []});
-    // this.rapier = injector.get(Rapier);
     this.rapier = rapier;
   }
 
@@ -70,7 +57,7 @@ export class Blocks {
 
   private async obstacle(position:THREE.Vector3Like) {
     const mesh = new Mesh();
-    const beach = await mesh.create({
+    const obstacle = await mesh.create({
       geometry: {type: 'box', width: 1, height: 1, depth: 1},
       material: {type: 'standard', color: 'tomato'},
       mesh: {
@@ -80,32 +67,28 @@ export class Blocks {
         receiveShadow: true
       }
     });
-    return beach;
+    return obstacle;
   }
 
  /**
    * Bound
    */
- public async Bound(length:number) {
-  /*
-     const body: Body = new Body(this.rapier);
-     await body.create(
-     // await rigidBody.create(
-       {
-         rigidBody: {
-           name: 'beach',
-           type:'fixed', 
-           restitution:0.2, friction: 0,
-         },
-         collider: {
-           args: [this.blockDimensions.width / 2, 0.1, 2 * length],
-           position: {x: 0, y: -0.1, z: -(length * 2) + 2},
-           restitution: 0.2,
-           friction: 1
-         }
-     });
-     return body;
-    */
+  public async Bound(length:number) {
+    console.log('Bound position:', {x: 0, y: -0.1, z: -(length * 2) + 2});
+    const body: Body = new Body(this.rapier);
+    await body.create(
+      // await rigidBody.create(
+        {
+          collider: {
+            type:'fixed',
+            userData: {name: 'bound'},
+            args: [this.blockDimensions.width / 2, 0.1, 2 * length],
+            position: {x: 0, y: -0.1, z: -(length * 2) + 2},
+            restitution: 0.2,
+            friction:1
+          }
+        }
+      );
  /*
      <RigidBody type="fixed" restitution={0.2} friction={0}>
      <CuboidCollider
@@ -222,9 +205,7 @@ export class Blocks {
       rotation.setFromEuler(new THREE.Euler(0, time * speed, 0));
       rigidBody1.rigidBody.setNextKinematicRotation(rotation);
     };
-
     return [beach, obstacle1, obstacle2];
-
   }
 
   /**

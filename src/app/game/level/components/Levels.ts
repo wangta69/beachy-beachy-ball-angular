@@ -1,13 +1,3 @@
-// Beachy Beachy Ball
-// Copyright (c) 2023 Michael Kolesidis <michael.kolesidis@gmail.com>
-// Licensed under the GNU Affero General Public License v3.0.
-// https://www.gnu.org/licenses/gpl-3.0.html
-
-import {
-  Blocks
-} from "../../objects/Blocks";
-
-// const blocks = new Blocks();
 const levels = [
   {
     name: "Copacabana",

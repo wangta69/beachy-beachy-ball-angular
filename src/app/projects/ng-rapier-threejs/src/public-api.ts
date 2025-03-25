@@ -10,7 +10,7 @@ export const _rotation = new Quaternion();
 export const _scale = new Vector3();
 
 
-export {ColliderPropsFromMesh} from './rapier/ColliderPropsFromMesh';
+export {ColliderProps} from './rapier/ColliderProps';
 export {RapierColliderDesc} from './rapier/RapierColliderDesc';
 export {RapierRigidBody} from './rapier/RapierRigidBody';
 

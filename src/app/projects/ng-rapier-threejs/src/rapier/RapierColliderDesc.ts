@@ -116,6 +116,8 @@ export class RapierColliderDesc {
     args: (number | ArrayLike<number> | { x: number; y: number; z: number })[],
     scale: THREE.Vector3
   ) {
+
+    console.log('args:', args);
     const newArgs = args.slice();
   
     switch(shape) {

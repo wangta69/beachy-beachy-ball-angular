@@ -2,6 +2,14 @@ import { Injectable } from '@angular/core';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+
+interface CameraProps {
+  fov: number, 
+  aspect: number, 
+  near: number, 
+  far:number
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -40,7 +48,7 @@ export class World {
     
     // window.addEventListener( 'resize', () => this.onResize(), false );
 
-    this.createCamera();
+    this.createCamera(<CameraProps>{});
    
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
@@ -58,17 +66,18 @@ export class World {
   private setScrensize() {
     this.screen = {width:  window.innerWidth, height: window.innerHeight};
   }
+
   private createRenderer() {
     this.renderer.setPixelRatio( window.devicePixelRatio );
     this.renderer.setSize( this.screen.width, this.screen.height );
     this.container.appendChild( this.renderer.domElement );
   }
 
-  private createCamera() {
-    const fov = 25; // 현재값 : 25
-    const aspect = window.innerWidth / window.innerHeight;
-    const near = 0.1; 
-    const far = 200; // 200
+  private createCamera({fov, aspect, near, far}:CameraProps) {
+    fov = fov || 25; // 현재값 : 25
+    aspect = aspect || window.innerWidth / window.innerHeight;
+    near = near || 0.1; 
+    far = far || 200; // 200
 
     this.camera = new THREE.PerspectiveCamera( fov, aspect, near, far )
     this.camera.position.set( 0, 0, 100 ); // 0, 0, 200
@@ -145,7 +154,4 @@ export class World {
     this.render();
     requestAnimationFrame(this.update); // request next update
   }
-
-
-
 }

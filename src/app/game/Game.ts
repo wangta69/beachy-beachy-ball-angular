@@ -1,28 +1,21 @@
 import { Component,OnInit,AfterViewInit,ViewChild,ElementRef, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { Subject, filter, map } from 'rxjs';
-import * as THREE from 'three';
-// import {World} from '../threejs/World';
-// import {Rapier} from '../rapier/Rapier';
 
 import {Rapier, World} from '../projects/ng-rapier-threejs/src/public-api'
-// import {Body} from '../rapier/Body';
 import {Ball} from './objects/Ball';
-// import {BlockEmpty} from './level/components/Blocks';
 import {Levels} from './level/Level';
-// import { getLocalStorage, setLocalStorage } from './stores/utils';
 import {Settings} from './interface/types';
 import {Event, Message} from './services/event.service';
 import {Storage} from './services/storage.service';
 import {Sounds} from './services/sound.service';
 import {Interface} from './interface/Interface';
-// import { Observable, filter, map } from 'rxjs';
+
 @Component({
   standalone: true,
   selector: 'app-game',
   schemas: [NO_ERRORS_SCHEMA],
-  imports: [CommonModule, MatIconModule, Interface],
+  imports: [CommonModule, MatIconModule, Interface], // , 
   templateUrl: './game.html',
   styleUrls: ['./game.scss']
 })
@@ -163,9 +156,6 @@ export class Game implements OnInit, AfterViewInit{
   // controller part start
   private handleKeyDown(e: any) {
     this.event.broadcast('keyboard', {ev: e});
-    // console.log(this.event.get('keyboard'));
-    // const {code} = this.event.get('keyboard');
-    // console.log('code is ' + code);
     switch(e.code) {
       case 'KeyR':
         this.restart(); break;
@@ -186,9 +176,7 @@ export class Game implements OnInit, AfterViewInit{
         this.ball.action({act: 'dir', dir: 'rightward'})
         break;
       case 'Space': this.ball.action({act: 'jump'}); break;
-
     }
-    
   }
 
   private toggleAudio() {
@@ -206,7 +194,6 @@ export class Game implements OnInit, AfterViewInit{
   private restart() {
     if (this.phase === "playing" || this.phase === "ended") {
       this.event.broadcast('status', { phase: "ready", blocksSeed: Math.random() });
-      // return { phase: "ready", blocksSeed: Math.random() };
     }
     // return {};
   }
@@ -283,11 +270,6 @@ export class Game implements OnInit, AfterViewInit{
     }, 1000);
     
   }
-
-
-
-
-
 
   // Show performance
   private showPerformance(){

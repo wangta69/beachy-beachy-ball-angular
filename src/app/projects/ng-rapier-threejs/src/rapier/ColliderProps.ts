@@ -1,15 +1,33 @@
 
 import * as THREE from "three";
 
-export class ColliderPropsFromMesh {
+export class ColliderProps {
   constructor() {
   }
 
+
+
+  public fromParams(params: any) {
+    const objectProps = {
+      position: params.collider.position || new THREE.Vector3(), 
+      rotation: new THREE.Quaternion(), 
+      scale: new THREE.Vector3(),
+      shape: params.collider.shape || 'cuboid',
+      args: params.collider.args,
+      offset: null,
+      restitution: params.collider.restitution,
+      friction: params.collider.friction
+    };
+
+
+
+    return objectProps;
+  }
   /**
    * 
    * @param args = {object3d, collider}
    */
-  public create(params: any) {
+  public fromMesh(params: any) {
     // const childColliderProps: ColliderProps[] = [];
 
     const object:THREE.Object3D = params.object3d;

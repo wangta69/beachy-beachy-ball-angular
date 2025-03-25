@@ -72,7 +72,7 @@ export class Levels {
   }
   
   public async RandomLevel(
-    count = 5,
+    count = 1,
     types = [
       'BlockSpinner',
       'BlockDoubleSpinner',
@@ -105,40 +105,6 @@ export class Levels {
     rtn.push(await this.blocks.BlockEnd([0, 0, -(count + 2) * 4]));
     this.Bounds(count + 3);
     return this.mergeArrays(rtn);
-  
-  
-  
-  
-  
-    /*
-    const blocks = useMemo(() => {
-      const blocks = [];
-  
-      for (let i = 0; i < count; i++) {
-        const type = types[Math.floor(Math.random() * types.length)];
-        blocks.push(type);
-      }
-  
-      return blocks;
-    }, [count, types, seed]);
-  
-    return (
-      <>
-        <BlockEmpty position={[0, 0, 0]} />
-  
-        {blocks.map((Block, index) => (
-          <Block
-            key={index}
-            position={[0, 0, -(index + 1) * 4]}
-            difficulty={difficulty}
-          />
-        ))}
-        <BlockEmpty position={[0, 0, -(count + 1) * 4]} />
-        <BlockEnd position={[0, 0, -(count + 2) * 4]} />
-        <Bounds length={count + 3} />
-      </>
-    );
-    */
   }
 
   private mergeArrays(arr: any[]) {
