@@ -11,7 +11,8 @@
 import * as THREE from "three";
 // import {World} from '../../threejs/World';
 // import {Rapier} from '../../rapier/Rapier';
-import {Rapier, World} from 'ng-rapier-threejs'
+// import {Rapier, World} from 'ng-rapier-threejs'
+import {Rapier, World} from '../../../../projects/ng-rapier-threejs/src/public-api';
 import {Event} from '../services/event.service';
 // import useGame from "../stores/useGame";
 // import {
@@ -72,7 +73,7 @@ export class Levels {
   }
   
   public async RandomLevel(
-    count = 1,
+    count = 0,
     types = [
       'BlockSpinner',
       'BlockDoubleSpinner',
@@ -101,8 +102,8 @@ export class Levels {
     blocks.map(async (Block, index) => {
       rtn.push(await (this.blocks as any)[Block]([0, 0, -(index + 1) * 4], difficulty));
     })
-    rtn.push(await this.blocks.BlockEmpty([0, 0, -(count + 1) * 4]));
-    rtn.push(await this.blocks.BlockEnd([0, 0, -(count + 2) * 4]));
+    // rtn.push(await this.blocks.BlockEmpty([0, 0, -(count + 1) * 4]));
+    // rtn.push(await this.blocks.BlockEnd([0, 0, -(count + 2) * 4]));
     this.Bounds(count + 3);
     return this.mergeArrays(rtn);
   }

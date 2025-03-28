@@ -7,7 +7,8 @@ import RAPIER from '@dimforge/rapier3d-compat';
 // import {Rapier} from '../../rapier/Rapier';
 import {Event} from '../services/event.service';
 import {Sounds} from '../services/sound.service';
-import {Rapier, World, Body, Mesh} from 'ng-rapier-threejs';
+// import {Rapier, World, Body, Mesh} from 'ng-rapier-threejs';
+import {Rapier, World, Body, Mesh} from '../../../../projects/ng-rapier-threejs/src/public-api';
 export class Ball {
   private bodyMesh!:THREE.Object3D | THREE.Mesh; 
   private body!: RAPIER.RigidBody;
@@ -37,7 +38,8 @@ export class Ball {
     const mesh = new Mesh();
 
     const ball = await mesh.create({
-      geometry: {type: 'sphere', radius: 0.3, width: 128, height: 128}, 
+      // geometry: {type: 'sphere', args: [radius: 0.3, width: 128, height: 128}, 
+      geometry: {type: 'sphere', args: [0.3, 128, 128]}, 
       material: {type: 'standard', textureUrl: '/textures/beach_ball_texture.png', flatShading: true},
       mesh: {castShadow: true, receiveShadow: true, position: {x:0, y:1, z:0}}
     });
@@ -47,19 +49,20 @@ export class Ball {
     const body: Body = new Body(this.rapier);
     this.body = await body.create(
       {
-        rigidBody: {
-          name: 'ball',
-          onCollisionEnter:this.onHit.bind(this)
+        body: {
+          type:'dynamic', 
+          userData: {name: 'ball'},
+          linearDamping:0.5,
+          angularDamping:0.5,
+          // onCollisionEnter:this.onHit.bind(this)
         },
         collider: {
-          type:'dynamic',
+          
           shape:'ball',
           friction: 1,
           mass: 0.1,
-          linearDamping:0.5,
-          angularDamping:0.5,
+         
           restitution: 0.5,
-          userData: {name: 'ball'},
           onCollisionEnter:this.onHit.bind(this)
         },
         object3d:ball

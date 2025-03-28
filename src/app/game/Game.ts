@@ -2,7 +2,8 @@ import { Component,OnInit,AfterViewInit,ViewChild,ElementRef, NO_ERRORS_SCHEMA }
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
-import {Rapier, World} from 'ng-rapier-threejs'
+import {Rapier, World} from '../../../projects/ng-rapier-threejs/src/public-api';
+// import {Rapier, World} from 'ng-rapier-threejs'
 import {Ball} from './objects/Ball';
 import {Levels} from './level/Level';
 import {Settings} from './interface/types';
@@ -99,7 +100,7 @@ export class Game implements OnInit, AfterViewInit{
 
 
     event.subscribe().subscribe((res: Message) => {
-      console.log('=============================this.phase:', this.phase, ' res.payload.phase:', res.payload.phase);
+  
       switch(res.type) {
         case 'status': 
           // this.state = res.payload;
@@ -254,7 +255,9 @@ export class Game implements OnInit, AfterViewInit{
       .setContainer(<HTMLElement>document.getElementById('game'))
       .setScreen()
       .setCamera({fov:25, near: 0.1, far: 200, position: [0, 0, 200]})
-      .setRenderer({antialias: true, alpha: true})
+      .setRenderer({antialias: true, alpha: true}, {
+        pixelRatio: window.devicePixelRatio
+      })
       .setLights({
         type: 'spot',
         intensity: Math.PI * 10,
@@ -280,10 +283,10 @@ export class Game implements OnInit, AfterViewInit{
       this.levels = new Levels(this.world, this.rapier, this.event);
        
       const blocks = await this.levels.RandomLevel();
-
+      console.log(blocks);
       blocks.forEach((block: any) => {
         // if( block instanceof Mesh) {
-        if( block ) {
+        if( block && block.isObject3D ) {
           this.world.scene.add(block);
         }
       });

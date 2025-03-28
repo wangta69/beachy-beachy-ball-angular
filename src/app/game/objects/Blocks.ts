@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import {Rapier, World, Body, Mesh} from 'ng-rapier-threejs';
+// import {Rapier, World, Body, Mesh} from 'ng-rapier-threejs';
+import {Rapier, World, Body, Mesh} from '../../../../projects/ng-rapier-threejs/src/public-api';
 import {Event} from '../services/event.service';
 import * as GSAP from 'gsap';
 
@@ -29,7 +30,7 @@ export class Blocks {
   private async beach(position:THREE.Vector3Like) {
     const mesh = new Mesh();
     const beach = await mesh.create({
-      geometry: {type: 'box', width: 1, height: 1, depth: 1},
+      geometry: {type: 'box', args: [1, 1, 1]},
       material: {type: 'standard', color: 'orange'},
       mesh: {
         position:new THREE.Vector3(0, -0.2, 0).add(position),
@@ -43,9 +44,10 @@ export class Blocks {
     await body.create(
     // await rigidBody.create(
       {
+        body: {type: 'fixed', userData: {name: 'beach'}},
         collider: {
           type:'kinematicPosition',
-          userData: {name: 'beach'}
+          
           // restitution:0.2, friction: 0,
           // mass: 0.1 // 테스트로 넣어둚
         },
@@ -58,7 +60,7 @@ export class Blocks {
   private async obstacle(position:THREE.Vector3Like) {
     const mesh = new Mesh();
     const obstacle = await mesh.create({
-      geometry: {type: 'box', width: 1, height: 1, depth: 1},
+      geometry: {type: 'box', args: [1, 1, 1]},
       material: {type: 'standard', color: 'tomato'},
       mesh: {
         position:new THREE.Vector3(0, -0.2, 0).add(position),
@@ -485,39 +487,44 @@ export class Blocks {
   public async BlockEnd(position = [0, 0, 0]) {
     const beach = await this.beach({x: position[0], y: position[1], z: position[2]});
 
-    const mesh = new Mesh();
-    const star = await mesh.loadGLTF({
+    // const mesh = new Mesh();
+    // const star = await mesh.loadGLTF({
+    const star = await new Mesh().loadGLTF({
       url: '/models/star.glb', 
-      name: 'pCylinder3', 
-      castShadow: true, 
-      receiveShadow: true, 
-      position: {x: position[0], y: 1.05 + position[1], z: position[2]},
-      scale:{x:0.012, y:0.012, z:0.012}});
+    },(gltf:any)=>{
+      const starMesh:any = gltf.getObjectByName('pCylinder3');
+      starMesh.castShadow = true;
+      starMesh.receiveShadow = true; 
+      starMesh.position.set(position[0], 1.05 + position[1], position[2]);
+      starMesh.scale.set(0.012, 0.012, 0.012);
 
 
-    const body: Body = new Body(this.rapier);
-    await body.create(
-      {
-        rigidBody: {
-          name: 'star',
-          type:'fixed', 
-          // colliders: 'trimesh', 
-          // position: {x:0+position[0], y:1.05+position[1], z:0+position[2]}, 
-          // rotation:{x:0, y:Math.PI / 2, z:0}, 
-          // restitution:0.2, friction: 0,
-          onCollisionEnter:this.onHit
-        },
-        collider: {
-          type:'fixed', 
-          shape: 'trimesh', 
-          rotation:{x:0, y:Math.PI / 2, z:0},
-          restitution:0.2, friction: 0,
-          userData: {name: 'star'}
-        },
-        object3d: star,
-      }
-    );
+      const body: Body = new Body(this.rapier);
+      body.create(
+        {
+          body: {
+            name: 'star',
+            type:'fixed', 
+            userData: {name: 'star'},
+            // colliders: 'trimesh', 
+            // position: {x:0+position[0], y:1.05+position[1], z:0+position[2]}, 
+            // rotation:{x:0, y:Math.PI / 2, z:0}, 
+            // restitution:0.2, friction: 0,
+            onCollisionEnter:this.onHit
+          },
+          collider: {
+            type:'fixed', 
+            shape: 'trimesh', 
+            rotation:{x:0, y:Math.PI / 2, z:0},
+            restitution:0.2, friction: 0
+            
+          },
+          object3d: starMesh,
+        }
+      );
 
+      
+    });
 
     const tween = {
       prerotate: 0,
@@ -534,18 +541,7 @@ export class Blocks {
       // rotate: 3,
       onUpdate: () => {
         // 2초동안(duration) bounce.out 으로 position의 각 값들이 변화된느 것을 확인 할 수 있습니다.
-
-        
-        // const delta = tween.rotate - tween.prerotate;
-        // const deltaAngle = delta;
-
-        // body.rigidBody.setRotation({ w: 1.0, x: 0.0, y: deltaAngle, z: 0.0 });
-        body.rigidBody.setRotation({  x: 0.0, y: tween.rotate, z: 0.0, w: 1.0 }, true);
-        // new THREE.Euler( 0, tween.rotate, 0, 'XYZ' );
-        // body.rigidBody.setRotation(new THREE.Euler( 0, tween.rotate, 0, 'XYZ' ));
-
-        // body.rigidBody.setTranslation(0, 0, 0);
-        // body.rigidBody.setTranslation(rotation.x++, rotation.y++, rotation.z++);
+        // body.rigidBody.setRotation({  x: 0.0, y: tween.rotate, z: 0.0, w: 1.0 }, true);
     
       },
       onComplete: () => {
