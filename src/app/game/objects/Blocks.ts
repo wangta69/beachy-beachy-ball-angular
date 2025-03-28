@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import {Rapier, World, Body, Mesh} from '../../projects/ng-rapier-threejs/src/public-api';
+import {Rapier, World, Body, Mesh} from 'ng-rapier-threejs';
 import {Event} from '../services/event.service';
 import * as GSAP from 'gsap';
 

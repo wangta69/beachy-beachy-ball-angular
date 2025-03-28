@@ -7,7 +7,7 @@ import RAPIER from '@dimforge/rapier3d-compat';
 // import {Rapier} from '../../rapier/Rapier';
 import {Event} from '../services/event.service';
 import {Sounds} from '../services/sound.service';
-import {Rapier, World, Body, Mesh} from '../../projects/ng-rapier-threejs/src/public-api';
+import {Rapier, World, Body, Mesh} from 'ng-rapier-threejs';
 export class Ball {
   private bodyMesh!:THREE.Object3D | THREE.Mesh; 
   private body!: RAPIER.RigidBody;

@@ -4,7 +4,7 @@ import {
 } from "@dimforge/rapier3d-compat";
 import { Euler, Quaternion, Vector3 } from "three";
 import { _euler, _quaternion, _vector3 } from "./shared-objects";
-import { RigidBodyTypeString, Vector3Tuple } from "../types.ts.adf";
+import { RigidBodyTypeString, Vector3Tuple } from "../types";
 import * as THREE from "three";
 
 

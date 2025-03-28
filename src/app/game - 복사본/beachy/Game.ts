@@ -6,7 +6,7 @@ import * as THREE from 'three';
 // import {World} from '../threejs/World';
 // import {Rapier} from '../rapier/Rapier';
 
-import {Rapier, World} from '../../projects/ng-rapier-threejs/src/public-api'
+import {Rapier, World} from 'ng-rapier-threejs'
 // import {Body} from '../rapier/Body';
 import {Ball} from './objects/Ball';
 // import {BlockEmpty} from './level/components/Blocks';

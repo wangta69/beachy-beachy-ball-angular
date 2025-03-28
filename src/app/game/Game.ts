@@ -2,7 +2,7 @@ import { Component,OnInit,AfterViewInit,ViewChild,ElementRef, NO_ERRORS_SCHEMA }
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
-import {Rapier, World} from '../projects/ng-rapier-threejs/src/public-api'
+import {Rapier, World} from 'ng-rapier-threejs'
 import {Ball} from './objects/Ball';
 import {Levels} from './level/Level';
 import {Settings} from './interface/types';
@@ -250,7 +250,30 @@ export class Game implements OnInit, AfterViewInit{
 
   private async create() {
     await this.rapier.initRapier(0.0, -9.81, 0.0);
-    this.world.create();
+    this.world.clear()
+      .setContainer(<HTMLElement>document.getElementById('game'))
+      .setScreen()
+      .setCamera({fov:25, near: 0.1, far: 200, position: [0, 0, 200]})
+      .setRenderer({antialias: true, alpha: true})
+      .setLights({
+        type: 'spot',
+        intensity: Math.PI * 10,
+        angle: Math.PI / 1.8,
+        penumbra: 0.5,
+        castShadow: true,
+        shadow: {blurSamples: 10, radius: 5}
+      }).setLights({
+        type: 'spot',
+        intensity: Math.PI * 10,
+        position: [-2.5, 5, 5],
+        angle: Math.PI / 1.8,
+        penumbra: 0.5,
+        castShadow: true,
+        shadow: {blurSamples: 10, radius: 5}
+      })
+      .enableControls({damping: true, target:{x: 0, y: 1, z: 0}})
+      .enableHelpers({position: {x: 0, y: -75, z: 0}})
+      .update(); // requestAnimationFrame(this.update)
 
     setTimeout(async () => {
       this.ball = new Ball(this.world, this.rapier, this.event, this.sounds);
