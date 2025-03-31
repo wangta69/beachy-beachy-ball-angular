@@ -9,7 +9,7 @@ type UseFrame = {
   delta: number;
 }
 export class Blocks {
-  private world: World; 
+  // private world: World; 
   private rapier: Rapier;
   private event: Event;
 
@@ -20,11 +20,9 @@ export class Blocks {
   };
 
   constructor(world:World, rapier:Rapier, event:Event) {
-    this.world = world;
+    // this.world = world;
     this.rapier = rapier;
     this.event = event;
-
-    this.rapier = rapier;
   }
 
   private async beach(position:THREE.Vector3Like) {
@@ -45,9 +43,7 @@ export class Blocks {
     // await rigidBody.create(
       {
         body: {type: 'fixed', userData: {name: 'beach'}},
-        collider: {
-          type:'kinematicPosition',
-          
+        collider: {         
           // restitution:0.2, friction: 0,
           // mass: 0.1 // 테스트로 넣어둚
         },
@@ -76,21 +72,24 @@ export class Blocks {
    * Bound
    */
   public async Bound(length:number) {
-    console.log('Bound position:', {x: 0, y: -0.1, z: -(length * 2) + 2});
     const body: Body = new Body(this.rapier);
     await body.create(
       // await rigidBody.create(
         {
-          collider: {
+          body: {
             type:'fixed',
             userData: {name: 'bound'},
-            args: [this.blockDimensions.width / 2, 0.1, 2 * length],
             position: {x: 0, y: -0.1, z: -(length * 2) + 2},
+          },
+          collider: {
+            args: [this.blockDimensions.width / 2, 0.1, 2 * length],
             restitution: 0.2,
             friction:1
           }
         }
       );
+
+
  /*
      <RigidBody type="fixed" restitution={0.2} friction={0}>
      <CuboidCollider
@@ -129,10 +128,12 @@ export class Blocks {
     const body: Body = new Body(this.rapier);
     await body.create(
       {
-        collider: {
+        body: {
           type:'kinematicPosition',
-          restitution:0.2, friction: 0,
           userData: {name: 'obstacle'}
+        },
+        collider: {
+          restitution:0.2, friction: 0
         },
         object3d: obstacle
       }
@@ -142,10 +143,13 @@ export class Blocks {
     const speed = (Math.random() + difficulty + 0.5) * (Math.random() < 0.5 ? -1 : 1);
 
     body.useFrame = (clock: UseFrame) => {
+
+
       const time = clock.time;
       const rotation = new THREE.Quaternion();
 
       rotation.setFromEuler(new THREE.Euler(0, time * speed, 0));
+      // console.log('inner userFrame', rotation);
       body.rigidBody.setNextKinematicRotation(rotation);
     };
 
@@ -166,11 +170,12 @@ export class Blocks {
       const body: Body = new Body(this.rapier);
       await body.create(
       {
-    
-        collider: {
+        body: {
           type:'kinematicPosition',
-          restitution:0.2, friction: 0,
           userData: {name: 'obstacle'}
+        },
+        collider: {
+          restitution:0.2, friction: 0
         }, 
         object3d: obstacle1
       }
@@ -192,10 +197,12 @@ export class Blocks {
     const rigidBody1: any = new Body(this.rapier);
     rigidBody1.create(
       {
-        collider: {
+        body: {
           type:'kinematicPosition',
-          restitution:0.2, friction: 0,
           userData: {name: 'obstacle'}
+        },
+        collider: {
+          restitution:0.2, friction: 0
         },
         object3d: obstacle2
       }
@@ -223,10 +230,12 @@ export class Blocks {
     const body: Body = new Body(this.rapier);
     await body.create(
       {
-        collider: {
+        body: {
           type:'kinematicPosition',
-          restitution:0.2, friction: 0,
           userData: {name: 'obstacle'}
+        },
+        collider: {
+          restitution:0.2, friction: 0
         },
         
         object3d: obstacle
@@ -262,10 +271,12 @@ export class Blocks {
     const body: Body = new Body(this.rapier);
     await body.create(
       {
-        collider: {
+        body: {
           type:'kinematicPosition',
-          restitution:0.2, friction: 0,
           userData: {name: 'obstacle'}
+        },
+        collider: {
+          restitution:0.2, friction: 0
         },
         
         object3d: obstacle1
@@ -289,10 +300,12 @@ export class Blocks {
     const body1: Body = new Body(this.rapier);
     await body1.create(
       {
-        collider: {
+        body: {
           type:'kinematicPosition',
-          restitution:0.2, friction: 0,
           userData: {name: 'obstacle'}
+        },
+        collider: {
+          restitution:0.2, friction: 0
         },
         
         object3d: obstacle2
@@ -326,10 +339,12 @@ export class Blocks {
     const body: Body = new Body(this.rapier);
     await body.create(
       {
-        collider: {
+        body: {
           type:'kinematicPosition',
-          restitution:0.2, friction: 0,
           userData: {name: 'obstacle'}
+        },
+        collider: {
+          restitution:0.2, friction: 0
         },
         object3d: obstacle
       }
@@ -366,10 +381,12 @@ export class Blocks {
     const body: Body = new Body(this.rapier);
     await body.create(
       {
-        collider: {
+        body: {
           type:'kinematicPosition',
-          restitution:0.2, friction: 0,
           userData: {name: 'obstacle'}
+        },
+        collider: {
+          restitution:0.2, friction: 0
         },
         object3d: obstacle
       }
@@ -391,10 +408,12 @@ export class Blocks {
     const body: Body = new Body(this.rapier);
     await body.create(
       {
-        collider: {
+        body: {
           type:'kinematicPosition',
-          restitution:0.2, friction: 0,
           userData: {name: 'obstacle'}
+        },
+        collider: {
+          restitution:0.2, friction: 0
         },
         object3d: obstacle
       }
@@ -422,19 +441,18 @@ export class Blocks {
   public async BlockDoubleSlidingWall(position = [0, 0, 0], difficulty:number) {
     const beach = await this.beach({x: position[0], y: position[1], z: position[2]});
 
-    
-
-
     const obstacle1 = await this.obstacle({x: position[0], y: position[1], z: position[2]});
     obstacle1.scale.set(1, 1.8, 0.3);
 
     const body: Body = new Body(this.rapier);
     await body.create(
       {
-        collider: {
+        body: {
           type:'kinematicPosition',
-          restitution:0.2, friction: 0,
           userData: {name: 'obstacle'}
+        },
+        collider: {
+          restitution:0.2, friction: 0
         },
         object3d: obstacle1
       }
@@ -458,10 +476,12 @@ export class Blocks {
     const body1: Body = new Body(this.rapier);
     await body1.create(
       {
-        collider: {
+        body: {
           type:'kinematicPosition',
-          restitution:0.2, friction: 0,
           userData: {name: 'obstacle'}
+        },
+        collider: {
+          restitution:0.2, friction: 0
         },
         object3d: obstacle2
       }
@@ -485,25 +505,26 @@ export class Blocks {
    * BlockEnd
    */
   public async BlockEnd(position = [0, 0, 0]) {
+
+    console.log('============ BlockEnd:')
     const beach = await this.beach({x: position[0], y: position[1], z: position[2]});
 
     // const mesh = new Mesh();
     // const star = await mesh.loadGLTF({
-    const star = await new Mesh().loadGLTF({
+    let star:THREE.Mesh | any;
+    let body: Body;
+    await new Mesh().loadGLTF({
       url: '/models/star.glb', 
     },(gltf:any)=>{
-      const starMesh:any = gltf.getObjectByName('pCylinder3');
-      starMesh.castShadow = true;
-      starMesh.receiveShadow = true; 
-      starMesh.position.set(position[0], 1.05 + position[1], position[2]);
-      starMesh.scale.set(0.012, 0.012, 0.012);
-
-
-      const body: Body = new Body(this.rapier);
+      star = gltf.getObjectByName('pCylinder3');
+      star.castShadow = true;
+      star.receiveShadow = true; 
+      star.position.set(position[0], 1.05 + position[1], position[2]);
+      star.scale.set(0.012, 0.012, 0.012);
+      body = new Body(this.rapier);
       body.create(
         {
           body: {
-            name: 'star',
             type:'fixed', 
             userData: {name: 'star'},
             // colliders: 'trimesh', 
@@ -513,17 +534,13 @@ export class Blocks {
             onCollisionEnter:this.onHit
           },
           collider: {
-            type:'fixed', 
             shape: 'trimesh', 
             rotation:{x:0, y:Math.PI / 2, z:0},
             restitution:0.2, friction: 0
-            
           },
-          object3d: starMesh,
+          object3d: star,
         }
       );
-
-      
     });
 
     const tween = {
@@ -541,7 +558,7 @@ export class Blocks {
       // rotate: 3,
       onUpdate: () => {
         // 2초동안(duration) bounce.out 으로 position의 각 값들이 변화된느 것을 확인 할 수 있습니다.
-        // body.rigidBody.setRotation({  x: 0.0, y: tween.rotate, z: 0.0, w: 1.0 }, true);
+        body.rigidBody.setRotation({  x: 0.0, y: tween.rotate, z: 0.0, w: 1.0 }, true);
     
       },
       onComplete: () => {

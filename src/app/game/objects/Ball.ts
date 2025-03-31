@@ -1,10 +1,6 @@
 import * as THREE from "three";
 import RAPIER from '@dimforge/rapier3d-compat';
-// import {Body} from '../../rapier/Body';
 
-// import {Mesh} from '../../threejs/Mesh';
-// import {World} from '../../threejs/World';
-// import {Rapier} from '../../rapier/Rapier';
 import {Event} from '../services/event.service';
 import {Sounds} from '../services/sound.service';
 // import {Rapier, World, Body, Mesh} from 'ng-rapier-threejs';
@@ -31,12 +27,8 @@ export class Ball {
     this.createBall();
   }
 
-
-
   private async createBall() {
-
     const mesh = new Mesh();
-
     const ball = await mesh.create({
       // geometry: {type: 'sphere', args: [radius: 0.3, width: 128, height: 128}, 
       geometry: {type: 'sphere', args: [0.3, 128, 128]}, 
@@ -61,7 +53,6 @@ export class Ball {
           shape:'ball',
           friction: 1,
           mass: 0.1,
-         
           restitution: 0.5,
           onCollisionEnter:this.onHit.bind(this)
         },
@@ -85,7 +76,6 @@ export class Ball {
       case 'ready':
         this.reset();
         break;
-
     }
   }
   
@@ -111,8 +101,6 @@ export class Ball {
 
   private update(clock: any) {
     // const delta = clock.getDelta();
-
-    
     const delta = clock.delta;
 
     const impulse = { x: 0, y: 0, z: 0 };
@@ -153,7 +141,7 @@ export class Ball {
    */
 
     const bodyPosition = this.body.translation();
-/*
+
     const cameraPosition = new THREE.Vector3();
     cameraPosition.copy(bodyPosition);
     cameraPosition.z += 2.25;
@@ -168,7 +156,7 @@ export class Ball {
 
     this.world.camera.position.copy(this.smoothedCameraPosition);
     this.world.camera.lookAt(this.smoothedCameraTarget);
-*/
+
 
     // Restart
    

@@ -143,15 +143,9 @@ export class Game implements OnInit, AfterViewInit{
     
   }
 
-
   ngAfterViewInit() {
-
-
     this.create();
-
-    // document.addEventListener('mousedown', this.handleMouseDown.bind(this), false);
     document.addEventListener("keydown", this.handleKeyDown.bind(this), false);
-    // document.addEventListener("keydown", this.event.broadcast.bind(null, 'keyboard'), false);
   }
 
   // controller part start
@@ -250,7 +244,7 @@ export class Game implements OnInit, AfterViewInit{
   // controller part end
 
   private async create() {
-    await this.rapier.initRapier(0.0, -9.81, 0.0);
+    
     this.world.clear()
       .setContainer(<HTMLElement>document.getElementById('game'))
       .setScreen()
@@ -258,32 +252,37 @@ export class Game implements OnInit, AfterViewInit{
       .setRenderer({antialias: true, alpha: true}, {
         pixelRatio: window.devicePixelRatio
       })
-      .setLights({
-        type: 'spot',
-        intensity: Math.PI * 10,
-        angle: Math.PI / 1.8,
-        penumbra: 0.5,
-        castShadow: true,
-        shadow: {blurSamples: 10, radius: 5}
-      }).setLights({
-        type: 'spot',
-        intensity: Math.PI * 10,
-        position: [-2.5, 5, 5],
-        angle: Math.PI / 1.8,
-        penumbra: 0.5,
-        castShadow: true,
-        shadow: {blurSamples: 10, radius: 5}
-      })
+      .setLights([{
+          type: 'ambient',
+          // color: 0xffffff,
+          intensity: 0.7
+        }, 
+        {
+          type: 'directional',
+          // color: 0xffffff,
+          intensity: 0.19,
+          position: [-1.5, -5, -3],
+          helper: true
+        }, {
+          type: 'directional',
+          // color: 0xffffff,
+          intensity: 3,
+          position: [1.5, 5, 3],
+          helper: true
+        }
+      ])
       .enableControls({damping: true, target:{x: 0, y: 1, z: 0}})
       .enableHelpers({position: {x: 0, y: -75, z: 0}})
       .update(); // requestAnimationFrame(this.update)
+
+      await this.rapier.initRapier(0.0, -9.81, 0.0);
+      this.rapier.enableRapierDebugRenderer();
 
     setTimeout(async () => {
       this.ball = new Ball(this.world, this.rapier, this.event, this.sounds);
       this.levels = new Levels(this.world, this.rapier, this.event);
        
       const blocks = await this.levels.RandomLevel();
-      console.log(blocks);
       blocks.forEach((block: any) => {
         // if( block instanceof Mesh) {
         if( block && block.isObject3D ) {
@@ -301,8 +300,6 @@ export class Game implements OnInit, AfterViewInit{
   private showPerformance(){
     this.performance =true
   }
-
-
 }
 
 

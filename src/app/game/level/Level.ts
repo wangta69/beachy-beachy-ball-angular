@@ -73,16 +73,16 @@ export class Levels {
   }
   
   public async RandomLevel(
-    count = 0,
+    count = 1,
     types = [
       'BlockSpinner',
-      'BlockDoubleSpinner',
-      'BlockSlidingWall',
-      'BlockDoubleSlidingWall',
-      'BlockLimbo',
-      'BlockDoubleLimbo',
-      'BlockPlatformLimbo',
-      'BlockRamp',
+      // 'BlockDoubleSpinner',
+      // 'BlockSlidingWall',
+      // 'BlockDoubleSlidingWall',
+      // 'BlockLimbo',
+      // 'BlockDoubleLimbo',
+      // 'BlockPlatformLimbo',
+      // 'BlockRamp',
     ],
 
     // seed = 0,
@@ -102,8 +102,8 @@ export class Levels {
     blocks.map(async (Block, index) => {
       rtn.push(await (this.blocks as any)[Block]([0, 0, -(index + 1) * 4], difficulty));
     })
-    // rtn.push(await this.blocks.BlockEmpty([0, 0, -(count + 1) * 4]));
-    // rtn.push(await this.blocks.BlockEnd([0, 0, -(count + 2) * 4]));
+    rtn.push(await this.blocks.BlockEmpty([0, 0, -(count + 1) * 4]));
+    rtn.push(await this.blocks.BlockEnd([0, 0, -(count + 2) * 4]));
     this.Bounds(count + 3);
     return this.mergeArrays(rtn);
   }
