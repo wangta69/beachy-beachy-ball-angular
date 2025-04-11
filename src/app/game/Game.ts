@@ -2,7 +2,7 @@ import { Component,OnInit,AfterViewInit,ViewChild,ElementRef, NO_ERRORS_SCHEMA }
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
-import {Rapier, World} from '../../../projects/ng-rapier-threejs/src/public-api';
+import {Rapier, World, EventListener} from '../../../projects/ng-rapier-threejs/src/public-api';
 // import {Rapier, World} from 'ng-rapier-threejs'
 import {Ball} from './objects/Ball';
 import {Levels} from './level/Level';
@@ -33,7 +33,7 @@ export class Game implements OnInit, AfterViewInit{
 
   public world!:World;
   public ball!:Ball;
-  public rapier:Rapier;
+  public rapier!:Rapier;
   private isInGame = false;
   public isSettings = false;
   private performance = false;
@@ -75,13 +75,14 @@ export class Game implements OnInit, AfterViewInit{
   private phase = 'playing'; // playing | ready
   private state:any;
   public event: Event;
+  public evListener: EventListener;
   private storage: Storage;
 
-  constructor(event: Event, storage: Storage, world: World, rapier:Rapier, sounds: Sounds) { // 
+  constructor(event: Event, storage: Storage, world: World, sounds: Sounds, evListener: EventListener) { // 
     
     this.storage = storage;
     this.world = world;
-    this.rapier = rapier;
+    this.evListener = evListener;
     this.sounds = sounds;
     this.settings = storage.get('beachyball.settings');
 
@@ -158,19 +159,19 @@ export class Game implements OnInit, AfterViewInit{
         this.toggleAudio(); break;
       case 'KeyP': // Toggle performance
         this.showPerformance(); break;
-      case 'ArrowUp': case 'KeyW': // forward
-        this.ball.action({act: 'dir', dir: 'forward'})
-        break;
-      case 'ArrowDown': case 'KeyS':
-        this.ball.action({act: 'dir', dir: 'backward'})
-        break;
-      case 'ArrowLeft': case 'KeyA':
-        this.ball.action({act: 'dir', dir: 'leftward'})
-        break;
-      case 'ArrowRight': case 'KeyD':
-        this.ball.action({act: 'dir', dir: 'rightward'})
-        break;
-      case 'Space': this.ball.action({act: 'jump'}); break;
+      // case 'ArrowUp': case 'KeyW': // forward
+      //   this.ball.action({act: 'dir', dir: 'forward'})
+      //   break;
+      // case 'ArrowDown': case 'KeyS':
+      //   this.ball.action({act: 'dir', dir: 'backward'})
+      //   break;
+      // case 'ArrowLeft': case 'KeyA':
+      //   this.ball.action({act: 'dir', dir: 'leftward'})
+      //   break;
+      // case 'ArrowRight': case 'KeyD':
+      //   this.ball.action({act: 'dir', dir: 'rightward'})
+      //   break;
+      // case 'Space': this.ball.action({act: 'jump'}); break;
     }
   }
 
@@ -271,15 +272,28 @@ export class Game implements OnInit, AfterViewInit{
           helper: true
         }
       ])
+      
+      .enableRapier(async (rapier: Rapier) => {
+        this.rapier = rapier;
+        setTimeout(() => {
+          rapier.init([0.0, -9.81,  0.0]);
+          rapier.enableRapierDebugRenderer();
+        }, 1000);
+        
+        // 
+      })
       .enableControls({damping: true, target:{x: 0, y: 1, z: 0}})
-      .enableHelpers({position: {x: 0, y: -75, z: 0}})
+      .setGridHelper({position: {x: 0, y: -75, z: 0}})
       .update(); // requestAnimationFrame(this.update)
 
-      await this.rapier.initRapier(0.0, -9.81, 0.0);
-      this.rapier.enableRapierDebugRenderer();
+      this.evListener.activeWindowResize();
+      this.evListener.addWindowResize(this.world.onResize.bind(this.world));
+
+      this.evListener.activeClickEvent(this.world.renderer);
+      this.evListener.activePointerlockchange(this.world.renderer);
 
     setTimeout(async () => {
-      this.ball = new Ball(this.world, this.rapier, this.event, this.sounds);
+      this.ball = new Ball(this.world, this.rapier, this.event, this.sounds, this.evListener);
       this.levels = new Levels(this.world, this.rapier, this.event);
        
       const blocks = await this.levels.RandomLevel();
@@ -290,9 +304,11 @@ export class Game implements OnInit, AfterViewInit{
         }
       });
 
-      this.ball.reset();
+      // this.ball.reset();
      
     }, 1000);
+
+
     
   }
 

@@ -73,16 +73,16 @@ export class Levels {
   }
   
   public async RandomLevel(
-    count = 1,
+    count = 10,
     types = [
       'BlockSpinner',
-      // 'BlockDoubleSpinner',
-      // 'BlockSlidingWall',
-      // 'BlockDoubleSlidingWall',
-      // 'BlockLimbo',
-      // 'BlockDoubleLimbo',
-      // 'BlockPlatformLimbo',
-      // 'BlockRamp',
+      'BlockDoubleSpinner',
+      'BlockSlidingWall',
+      'BlockDoubleSlidingWall',
+      'BlockLimbo',
+      'BlockDoubleLimbo',
+      'BlockPlatformLimbo',
+      'BlockRamp',
     ],
 
     // seed = 0,
@@ -96,7 +96,7 @@ export class Levels {
       blocks.push(type);
     }
   
-    const rtn = [];
+    const rtn: any[] = [];
     rtn.push(await this.blocks.BlockEmpty([0, 0, 0]));
 
     blocks.map(async (Block, index) => {
@@ -104,7 +104,7 @@ export class Levels {
     })
     rtn.push(await this.blocks.BlockEmpty([0, 0, -(count + 1) * 4]));
     rtn.push(await this.blocks.BlockEnd([0, 0, -(count + 2) * 4]));
-    this.Bounds(count + 3);
+    // this.Bounds(count + 3);
     return this.mergeArrays(rtn);
   }
 
@@ -133,24 +133,7 @@ export class Levels {
     count = levels[currentLevel].count;
     blocks = levels[currentLevel].blocks;
     */
-  /*
-    return (
-      <>
-        <BlockEmpty position={[0, 0, 0]} />
-  
-        {blocks.map((Block, index) => (
-          <Block
-            key={index}
-            position={[0, 0, -(index + 1) * 4]}
-            difficulty={difficulty}
-          />
-        ))}
-        <BlockEmpty position={[0, 0, -(count + 1) * 4]} />
-        <BlockEnd position={[0, 0, -(count + 2) * 4]} />
-        <Bounds length={count + 3} />
-      </>
-    );
-    */
+
   }
   
 }

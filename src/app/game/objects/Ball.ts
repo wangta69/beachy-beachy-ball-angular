@@ -4,7 +4,7 @@ import RAPIER from '@dimforge/rapier3d-compat';
 import {Event} from '../services/event.service';
 import {Sounds} from '../services/sound.service';
 // import {Rapier, World, Body, Mesh} from 'ng-rapier-threejs';
-import {Rapier, World, Body, Mesh} from '../../../../projects/ng-rapier-threejs/src/public-api';
+import {Rapier, World, Body, Mesh, EventListener} from '../../../../projects/ng-rapier-threejs/src/public-api';
 export class Ball {
   private bodyMesh!:THREE.Object3D | THREE.Mesh; 
   private body!: RAPIER.RigidBody;
@@ -13,54 +13,41 @@ export class Ball {
   private rapier: Rapier;
   private event: Event;
   private sounds: Sounds;
+  private evListener: EventListener
   
   private direction: string | null = null;
 
   private smoothedCameraPosition = new THREE.Vector3(0, 0, 200); // initial camera position
   private smoothedCameraTarget = new THREE.Vector3();
   
-  constructor(world:World, rapier:Rapier, event:Event, sounds:Sounds) { // rapier: Rapier
+  constructor(world:World, rapier:Rapier, event:Event, sounds:Sounds, evListener: EventListener) { // rapier: Rapier
     this.world = world;
     this.rapier = rapier;
     this.event = event;
     this.sounds = sounds;
+    this.evListener = evListener;
     this.createBall();
   }
 
   private async createBall() {
-    const mesh = new Mesh();
-    const ball = await mesh.create({
-      // geometry: {type: 'sphere', args: [radius: 0.3, width: 128, height: 128}, 
+
+    await this.world.addObject({
       geometry: {type: 'sphere', args: [0.3, 128, 128]}, 
       material: {type: 'standard', textureUrl: '/textures/beach_ball_texture.png', flatShading: true},
-      mesh: {castShadow: true, receiveShadow: true, position: {x:0, y:1, z:0}}
+      mesh: {castShadow: true, receiveShadow: true, position: {x:0, y:1, z:0}},
+      rapier: {
+        body: {
+          type:'dynamic', userData: {name: 'ball'}, linearDamping:0.5, angularDamping:0.5,
+        },
+        collider: {shape:'ball', friction: 1, mass: 0.1, restitution: 0.5,
+          onCollisionEnter:this.onHit.bind(this)
+        }
+      }
+    }, (mesh?: any, body?:Body)=>{
+      body ? this.body = body.rigidBody: null;
     });
 
-    this.bodyMesh = ball;
-
-    const body: Body = new Body(this.rapier);
-    this.body = await body.create(
-      {
-        body: {
-          type:'dynamic', 
-          userData: {name: 'ball'},
-          linearDamping:0.5,
-          angularDamping:0.5,
-          // onCollisionEnter:this.onHit.bind(this)
-        },
-        collider: {
-          
-          shape:'ball',
-          friction: 1,
-          mass: 0.1,
-          restitution: 0.5,
-          onCollisionEnter:this.onHit.bind(this)
-        },
-        object3d:ball
-      }
-    );
     
-    this.world.scene.add(this.bodyMesh);
 
     this.world.updates.push((clock:any)=>{this.update(clock)});
   }
@@ -89,7 +76,8 @@ export class Ball {
     const hit: RAPIER.RayColliderHit | null = this.rapier.world.castRay(ray, 10, true); // true: considers everything as solid
     
     if (hit && hit.timeOfImpact < 0.15) {
-      this.body.applyImpulse(new RAPIER.Vector3(0, 0.75, 0), true);
+      this.body.applyImpulse(new RAPIER.Vector3(0, 0.1, 0), true);
+      // this.body.applyImpulse(new RAPIER.Vector3(0, 0.75, 0), true);
     }
   };
 
@@ -102,13 +90,40 @@ export class Ball {
   private update(clock: any) {
     // const delta = clock.getDelta();
     const delta = clock.delta;
+    console.log('keyMap:', this.evListener.keyMap);
+
+    if (this.evListener.keyMap['KeyW'] || this.evListener.keyMap['ArrowUp']) {
+      this.direction = 'forward'
+    } else if(this.evListener.keyMap['KeyA'] || this.evListener.keyMap['ArrowLeft']) {
+      this.direction = 'leftward'
+    } else if(this.evListener.keyMap['KeyD'] || this.evListener.keyMap['ArrowRight']) {
+      this.direction = 'rightward'
+    } else if(this.evListener.keyMap['KeyS'] || this.evListener.keyMap['ArrowDown']) {
+      this.direction = 'backward'
+    }
+    
+    if(this.evListener.keyMap['Space']) {
+      this.jump();
+    } 
+
+
+      // case 'ArrowDown': case 'KeyS':
+      //   this.ball.action({act: 'dir', dir: 'backward'})
+      //   break;
+      // case 'ArrowLeft': case 'KeyA':
+      //   this.ball.action({act: 'dir', dir: 'leftward'})
+      //   break;
+      // case 'ArrowRight': case 'KeyD':
+      //   this.ball.action({act: 'dir', dir: 'rightward'})
+      //   break;
+      // case 'Space': this.ball.action({act: 'jump'}); break;
 
     const impulse = { x: 0, y: 0, z: 0 };
     const torque = { x: 0, y: 0, z: 0 };
 
     const impulseStrength = 0.6 * delta;
     const torqueStrength = 0.2 * delta;
-
+    // console.log(this.direction);
     switch(this.direction) {
       case 'forward':
         impulse.z -= impulseStrength;
